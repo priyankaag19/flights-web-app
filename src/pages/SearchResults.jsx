@@ -34,7 +34,7 @@ import {
   ExpandLess
 } from '@mui/icons-material';
 import { useLocation, useNavigate } from 'react-router-dom';
-import FlightSearchForm from '../components/search/FlightSearchForm';
+import FlightSearchForm from "../components/flight/FlightSearchForm";
 import { FlightService } from '../services/flightService';
 
 const ResultsContainer = styled(Box)(({ theme }) => ({

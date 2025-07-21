@@ -27,7 +27,7 @@ import {
   LocalOffer,
 } from '@mui/icons-material';
 import FlightSearchForm from '../components/flight/FlightSearchForm';
-import { useFlights } from '../hooks/useFlights';
+import  useFlights  from '../hooks/useFlights';
 import { useFlightContext } from '../context/FlightContext';
 
 // Mock data for popular destinations
