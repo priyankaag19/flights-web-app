@@ -1,4 +1,3 @@
-// src/pages/ExplorePage.jsx
 import React from 'react';
 import { Container, Typography, Box, Grid, Card, CardContent } from '@mui/material';
 

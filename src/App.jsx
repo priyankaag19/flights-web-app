@@ -9,6 +9,7 @@ import { FlightProvider } from './context/FlightContext';
 import Header from './components/common/Header';
 import Sidebar from './components/layout/Sidebar';
 import FlightSearchForm from './components/flight/FlightSearchForm';
+import FlightResultsDisplay from './components/flight/FlightResultsDisplay';
 
 // Pages (you'll need to create these)
 import HomePage from './pages/HomePage';
@@ -88,8 +89,8 @@ function App() {
                 <Route path="/" element={<HomePage />} />
                 <Route path="/search" element={<FlightSearchForm />} />
                 <Route path="/explore" element={<ExplorePage />} />
+                <Route path="/flights" element={<FlightResultsDisplay />} />
                 <Route path="/trips" element={<TripsPage />} />
-                <Route path="/my-trips" element={<TripsPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/settings" element={<SettingsPage />} />
               </Routes>

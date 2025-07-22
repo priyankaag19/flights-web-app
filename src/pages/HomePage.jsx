@@ -27,7 +27,7 @@ import {
   LocalOffer,
 } from '@mui/icons-material';
 import FlightSearchForm from '../components/flight/FlightSearchForm';
-import  useFlights  from '../hooks/useFlights';
+import { useFlights } from '../hooks/useFlights';
 import { useFlightContext } from '../context/FlightContext';
 
 // Mock data for popular destinations
@@ -76,7 +76,8 @@ const popularDestinations = [
     id: 5,
     city: 'Paris',
     country: 'France',
-    image: 'https://images.unsplash.com/photo-1502602898536-47ad22581b52?w=300&h=200&fit=crop',
+    image: 'https://unsplash.com/photos/eiffel-tower-during-daytime-Q0-fOL2nqZc?w=300&h=200&fit=crop',
+    // image: 'https://images.unsplash.com/photo-1502602898536-47ad22581b52?w=300&h=200&fit=crop',
     price: '₹58,000',
     description: 'The city of lights and love',
     skyId: 'PARI',
@@ -166,7 +167,7 @@ const HomePage = () => {
         }}
         onClick={() => handleDestinationClick(destination)}
       >
-        <Box
+         <Box
           sx={{
             height: 200,
             backgroundImage: `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.5)), url(${destination.image})`,
@@ -178,7 +179,8 @@ const HomePage = () => {
             p: 2,
             color: 'white',
           }}
-        >
+        > 
+     
           <Typography variant="h6" sx={{ fontWeight: 600, mb: 0.5 }}>
             {destination.city}
           </Typography>
@@ -220,17 +222,36 @@ const HomePage = () => {
   );
 
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default' }}>
-      {/* Hero Section */}
+<Box sx={{ minHeight: '100vh', backgroundColor: 'background.default' }}>
+      {/* Hero Section */} 
       <Box
         sx={{
           background: `linear-gradient(135deg, ${theme.palette.primary.main}15 0%, ${theme.palette.secondary.main}15 100%)`,
           py: { xs: 4, md: 6 },
           mb: 4,
+           display: 'flex',
+      justifyContent: 'center',
         }}
       >
-        <Container maxWidth="lg">
-          <Box sx={{ textAlign: 'center', mb: 4 }}>
+        {/* <Container maxWidth="lg">
+          <Box sx={{ textAlign: 'center', mb: 4 }}> */}
+
+             <Container
+      maxWidth="lg"
+      sx={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+      }}
+    >
+      <Box
+        sx={{
+          maxWidth: 800,
+          width: '100%',
+          textAlign: 'center',
+          mb: 4,
+        }}
+      >
             <Typography
               variant={isMobile ? 'h4' : 'h3'}
               sx={{
@@ -254,7 +275,7 @@ const HomePage = () => {
             </Typography>
           </Box>
 
-          {/* Search Form */}
+   {/* Search Form */}
           <Paper
             elevation={3}
             sx={{
@@ -264,10 +285,13 @@ const HomePage = () => {
               boxShadow: theme.shadows[10],
             }}
           >
-            <FlightSearchForm />
+      <FlightSearchForm onSearch={searchFlights} loading={loading} />
           </Paper>
         </Container>
-      </Box>
+      </Box> 
+
+
+
 
       <Container maxWidth="lg" sx={{ py: 2 }}>
         {/* Popular Destinations Section */}

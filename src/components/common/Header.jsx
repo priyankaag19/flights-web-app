@@ -35,6 +35,7 @@ const Header = ({ onMenuClick }) => {
   const handleClose = () => {
     setAnchorEl(null);
   };
+console.log('RapidAPI Key:', import.meta.env.VITE_RAPIDAPI_KEY);
 
   const handleNavigation = (path) => {
     navigate(path);
