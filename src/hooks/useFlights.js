@@ -1,4 +1,3 @@
-// hooks/useFlights.js
 import { useState } from 'react';
 import { AirportService } from '../services/airportService';
 

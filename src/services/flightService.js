@@ -1,7 +1,4 @@
-// src/services/FlightService.js
 import api from './api';
-import { API_ENDPOINTS } from '../utils/constants';
-
 export class FlightService {
   static async searchFlights(searchParams) {
     try {

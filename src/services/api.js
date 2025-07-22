@@ -1,4 +1,3 @@
-// src/services/api.js
 import axios from 'axios';
 
 const api = axios.create({
@@ -8,7 +7,7 @@ const api = axios.create({
     'X-RapidAPI-Host': 'flights-sky.p.rapidapi.com',
     'Content-Type': 'application/json'
   },
-  timeout: 20000, // 10 second timeout
+  timeout: 20000,
 });
 
 api.interceptors.request.use(

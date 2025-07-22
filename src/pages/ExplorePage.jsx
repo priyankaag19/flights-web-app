@@ -1,4 +1,3 @@
-import React from 'react';
 import { Container, Typography, Box, Grid, Card, CardContent } from '@mui/material';
 
 const ExplorePage = () => {

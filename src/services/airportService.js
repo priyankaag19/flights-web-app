@@ -1,4 +1,3 @@
-// src/services/airportService.js
 import api from './api';
 
 export class AirportService {

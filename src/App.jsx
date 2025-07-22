@@ -1,4 +1,3 @@
-// src/App.jsx
 import React, { useState } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { ThemeProvider, createTheme } from '@mui/material/styles';
@@ -77,8 +76,8 @@ function App() {
               sx={{
                 flexGrow: 1,
                 p: 3,
-                mt: 8, // Account for AppBar height
-                ml: isMobile ? 0 : '280px', // Account for sidebar width
+                mt: 8, 
+                ml: isMobile ? 0 : '280px', 
                 transition: theme.transitions.create(['margin'], {
                   easing: theme.transitions.easing.sharp,
                   duration: theme.transitions.duration.leavingScreen,

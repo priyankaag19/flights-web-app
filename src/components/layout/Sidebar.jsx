@@ -1,4 +1,3 @@
-// src/components/layout/Sidebar.jsx
 import React, { useState } from 'react';
 import {
   Drawer,
@@ -326,7 +325,7 @@ const Sidebar = ({ open, onClose, variant = 'temporary' }) => {
       onClose={onClose}
       variant={variant}
       ModalProps={{
-        keepMounted: true, // Better mobile performance
+        keepMounted: true,
       }}
       sx={{
         '& .MuiDrawer-paper': {

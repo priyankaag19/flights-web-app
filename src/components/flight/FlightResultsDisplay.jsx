@@ -1,11 +1,10 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { useFlightContext } from '../../context/FlightContext';
 import { Plane, Clock, Filter, AlertCircle, ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom'; // add this line
-
+import { useNavigate } from 'react-router-dom';
 
 const FlightResultsDisplay = () => {
-    const navigate = useNavigate(); // add this line
+    const navigate = useNavigate();
   const { 
     flights, 
     loading, 

@@ -1,4 +1,3 @@
-// src/pages/BookingPage.jsx
 import React, { useState, useEffect } from 'react';
 import {
   Box,
@@ -180,8 +179,8 @@ const BookingPage = () => {
   const calculateTotalPrice = () => {
     const basePrice = flight?.price || 0;
     const numPassengers = passengers.length;
-    const taxes = basePrice * 0.12; // 12% tax
-    const fees = 500; // Processing fees
+    const taxes = basePrice * 0.12;
+    const fees = 500; 
     return (basePrice * numPassengers) + taxes + fees;
   };
 

@@ -1,4 +1,3 @@
-// src/components/flight/FlightCard.jsx
 import React from 'react';
 import {
   Card,

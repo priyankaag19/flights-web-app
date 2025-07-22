@@ -39,6 +39,3 @@ export const testApiConnection = async () => {
     return false;
   }
 };
-
-// Call this function in your console to test
-// testApiConnection();
