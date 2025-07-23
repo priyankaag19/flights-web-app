@@ -41,7 +41,7 @@ src/
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/your-username/google-flights-clone.git
+   git clone https://github.com/priyankaag19/google-flights-clone.git
    cd google-flights-clone
    ```
 
