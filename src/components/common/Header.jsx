@@ -137,7 +137,7 @@ const Header = ({ onMenuClick }) => {
             <MenuItem onClick={() => handleNavigation('/profile')}>
               Profile
             </MenuItem>
-            <MenuItem onClick={() => handleNavigation('/my-trips')}>
+            <MenuItem onClick={() => handleNavigation('/trips')}>
               My Trips
             </MenuItem>
             <MenuItem onClick={() => handleNavigation('/settings')}>

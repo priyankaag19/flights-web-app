@@ -3,6 +3,7 @@ import { useFlights } from '../hooks/useFlights';
 
 const FlightContext = createContext();
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const useFlightContext = () => {
   const context = useContext(FlightContext);
   if (!context) {

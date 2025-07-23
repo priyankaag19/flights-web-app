@@ -10,12 +10,19 @@ const ProfilePage = () => {
 
       <Paper sx={{ p: 3, mt: 3 }}>
         <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-          <Avatar sx={{ width: 80, height: 80, mr: 3 }}>U</Avatar>
+          <Avatar
+            sx={{ width: 80, height: 80, mr: 3 }}
+            src="https://randomuser.me/api/portraits/women/44.jpg"
+            alt="Maya"
+          >
+            M
+          </Avatar>
           <Box>
             <Typography variant="h5">Maya</Typography>
-            <Typography color="text.secondary">maya@sharma.com</Typography>
+            <Typography color="text.secondary">maya@skoty.com</Typography>
           </Box>
         </Box>
+
 
         <Divider sx={{ my: 2 }} />
 
@@ -23,7 +30,7 @@ const ProfilePage = () => {
           Manage your account settings and preferences here.
         </Typography>
       </Paper>
-    </Container>
+    </Container >
   );
 };
 

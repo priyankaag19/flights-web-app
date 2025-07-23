@@ -184,29 +184,29 @@ export class FlightService {
     return [...flights].sort((a, b) => {
       switch (sortBy) {
         case 'price':
-          const priceA = a.price?.amount || a.price?.raw || a.price || 0;
+          { const priceA = a.price?.amount || a.price?.raw || a.price || 0;
           const priceB = b.price?.amount || b.price?.raw || b.price || 0;
-          return priceA - priceB;
+          return priceA - priceB; }
 
         case 'duration':
-          const durationA = a.durationInMinutes || a.duration || 0;
+          { const durationA = a.durationInMinutes || a.duration || 0;
           const durationB = b.durationInMinutes || b.duration || 0;
-          return durationA - durationB;
+          return durationA - durationB; }
 
         case 'rating':
-          const ratingA = a.rating || 0;
+          { const ratingA = a.rating || 0;
           const ratingB = b.rating || 0;
-          return ratingB - ratingA;
+          return ratingB - ratingA; }
 
         case 'departure':
-          const depA = a.departure?.time || a.legs?.[0]?.departure || '';
+          { const depA = a.departure?.time || a.legs?.[0]?.departure || '';
           const depB = b.departure?.time || b.legs?.[0]?.departure || '';
-          return depA.localeCompare(depB);
+          return depA.localeCompare(depB); }
 
         case 'arrival':
-          const arrA = a.arrival?.time || a.legs?.[0]?.arrival || '';
+          { const arrA = a.arrival?.time || a.legs?.[0]?.arrival || '';
           const arrB = b.arrival?.time || b.legs?.[0]?.arrival || '';
-          return arrA.localeCompare(arrB);
+          return arrA.localeCompare(arrB); }
 
         default:
           return 0;

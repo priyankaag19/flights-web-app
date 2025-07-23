@@ -221,75 +221,85 @@ const HomePage = () => {
 
   return (
     <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default' }}>
-      {/* Hero Section */}
-      <Box
+  {/* Hero Section */}
+<Box
+  sx={{
+    background: `linear-gradient(135deg, ${theme.palette.primary.main}15 0%, ${theme.palette.secondary.main}15 100%)`,
+    py: { xs: 4, md: 6 },
+    mb: 4,
+    display: 'flex',
+    justifyContent: 'center',
+    alignItems: 'center',
+  }}
+>
+  <Container
+    maxWidth="lg"
+    sx={{
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+    }}
+  >
+    {/* Title Section - Centered */}
+    <Box
+      sx={{
+        maxWidth: 800,
+        width: '100%',
+        textAlign: 'center',
+        mb: 4,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+      }}
+    >
+      <Typography
+        variant={isMobile ? 'h4' : 'h3'}
         sx={{
-          background: `linear-gradient(135deg, ${theme.palette.primary.main}15 0%, ${theme.palette.secondary.main}15 100%)`,
-          py: { xs: 4, md: 6 },
-          mb: 4,
-          display: 'flex',
-          justifyContent: 'center',
+          fontWeight: 700,
+          color: theme.palette.text.primary,
+          mb: 2,
         }}
       >
-        {/* <Container maxWidth="lg">
-          <Box sx={{ textAlign: 'center', mb: 4 }}> */}
+        Find Your Perfect Flight
+      </Typography>
+      <Typography
+        variant="h6"
+        sx={{
+          color: theme.palette.text.secondary,
+          fontWeight: 400,
+          maxWidth: 600,
+          mx: 'auto',
+        }}
+      >
+        Compare prices from hundreds of airlines and travel agencies
+      </Typography>
+    </Box>
 
-        <Container
-          maxWidth="lg"
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-          }}
-        >
-          <Box
-            sx={{
-              maxWidth: 800,
-              width: '100%',
-              textAlign: 'center',
-              mb: 4,
-            }}
-          >
-            <Typography
-              variant={isMobile ? 'h4' : 'h3'}
-              sx={{
-                fontWeight: 700,
-                color: theme.palette.text.primary,
-                mb: 2,
-              }}
-            >
-              Find Your Perfect Flight
-            </Typography>
-            <Typography
-              variant="h6"
-              sx={{
-                color: theme.palette.text.secondary,
-                fontWeight: 400,
-                maxWidth: 600,
-                mx: 'auto',
-              }}
-            >
-              Compare prices from hundreds of airlines and travel agencies
-            </Typography>
-          </Box>
-
-          {/* Search Form */}
-          <Paper
-            elevation={3}
-            sx={{
-              p: 3,
-              borderRadius: 3,
-              backgroundColor: 'background.paper',
-              boxShadow: theme.shadows[10],
-            }}
-          >
-            <FlightSearchForm onSearch={searchFlights} loading={loading} />
-          </Paper>
-        </Container>
-      </Box>
-
-
-
+    {/* Search Form - Centered */}
+    <Box
+      sx={{
+        width: '100%',
+        maxWidth: 1200, // Set max width for the search form
+        display: 'flex',
+        justifyContent: 'center',
+      }}
+    >
+      <Paper
+        elevation={3}
+        sx={{
+          p: 3,
+          borderRadius: 3,
+          backgroundColor: 'background.paper',
+          boxShadow: theme.shadows[10],
+          width: '100%',
+        }}
+      >
+        <FlightSearchForm onSearch={searchFlights} loading={loading} />
+      </Paper>
+    </Box>
+  </Container>
+</Box>
 
       <Container maxWidth="lg" sx={{ py: 2 }}>
         {/* Popular Destinations Section */}

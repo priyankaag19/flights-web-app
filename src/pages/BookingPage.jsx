@@ -61,7 +61,7 @@ const BookingPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const { flight, searchParams } = location.state || {};
-  
+
   const [activeStep, setActiveStep] = useState(0);
   const [passengers, setPassengers] = useState([]);
   const [paymentInfo, setPaymentInfo] = useState({});
@@ -76,7 +76,7 @@ const BookingPage = () => {
       navigate('/');
       return;
     }
-    
+
     // Initialize passenger data based on search params
     const numPassengers = parseInt(searchParams?.passengers) || 1;
     const initialPassengers = Array.from({ length: numPassengers }, (_, index) => ({
@@ -99,7 +99,7 @@ const BookingPage = () => {
   };
 
   const validatePhone = (phone) => {
-    const phoneRegex = /^[+]?[\d\s\-\(\)]{10,15}$/;
+    const phoneRegex = /^\d{10}$/;
     return phoneRegex.test(phone);
   };
 
@@ -112,13 +112,13 @@ const BookingPage = () => {
     if (!dob) return false;
     const today = new Date();
     const birthDate = new Date(dob);
-    const age = today.getFullYear() - birthDate.getFullYear();
+    let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
-    
+
     if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
       age--;
     }
-    
+
     return age >= 0 && age <= 120 && birthDate <= today;
   };
 
@@ -131,18 +131,18 @@ const BookingPage = () => {
   const validateExpiryDate = (expiry) => {
     const expiryRegex = /^(0[1-9]|1[0-2])\/\d{2}$/;
     if (!expiryRegex.test(expiry)) return false;
-    
+
     const [month, year] = expiry.split('/');
     const currentDate = new Date();
     const currentYear = currentDate.getFullYear() % 100;
     const currentMonth = currentDate.getMonth() + 1;
-    
+
     const expiryYear = parseInt(year);
     const expiryMonth = parseInt(month);
-    
+
     if (expiryYear < currentYear) return false;
     if (expiryYear === currentYear && expiryMonth <= currentMonth) return false;
-    
+
     return true;
   };
 
@@ -153,7 +153,7 @@ const BookingPage = () => {
 
   const validatePassengerDetails = () => {
     const newErrors = {};
-    
+
     passengers.forEach((passenger, index) => {
       // First Name validation
       if (!passenger.firstName.trim()) {
@@ -161,81 +161,81 @@ const BookingPage = () => {
       } else if (!validateName(passenger.firstName)) {
         newErrors[`passenger${index}_firstName`] = 'First name must contain only letters and be 2-50 characters';
       }
-      
+
       // Last Name validation
       if (!passenger.lastName.trim()) {
         newErrors[`passenger${index}_lastName`] = 'Last name is required';
       } else if (!validateName(passenger.lastName)) {
         newErrors[`passenger${index}_lastName`] = 'Last name must contain only letters and be 2-50 characters';
       }
-      
+
       // Email validation
       if (!passenger.email.trim()) {
         newErrors[`passenger${index}_email`] = 'Email is required';
       } else if (!validateEmail(passenger.email)) {
         newErrors[`passenger${index}_email`] = 'Please enter a valid email address';
       }
-      
+
       // Phone validation
       if (!passenger.phone.trim()) {
         newErrors[`passenger${index}_phone`] = 'Phone number is required';
       } else if (!validatePhone(passenger.phone)) {
-        newErrors[`passenger${index}_phone`] = 'Please enter a valid phone number (10-15 digits)';
+        newErrors[`passenger${index}_phone`] = 'Please enter a valid phone number (10 digit)';
       }
-      
+
       // Date of Birth validation
       if (!passenger.dateOfBirth) {
         newErrors[`passenger${index}_dateOfBirth`] = 'Date of birth is required';
       } else if (!validateDateOfBirth(passenger.dateOfBirth)) {
         newErrors[`passenger${index}_dateOfBirth`] = 'Please enter a valid date of birth';
       }
-      
+
       // Gender validation
       if (!passenger.gender) {
         newErrors[`passenger${index}_gender`] = 'Gender selection is required';
       }
-      
+
       // Nationality validation
       if (!passenger.nationality) {
         newErrors[`passenger${index}_nationality`] = 'Nationality is required';
       }
     });
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const validatePaymentInfo = () => {
     const newErrors = {};
-    
+
     // Cardholder Name validation
     if (!paymentInfo.cardholderName?.trim()) {
       newErrors.cardholderName = 'Cardholder name is required';
     } else if (!validateName(paymentInfo.cardholderName)) {
       newErrors.cardholderName = 'Cardholder name must contain only letters and be 2-50 characters';
     }
-    
+
     // Card Number validation
     if (!paymentInfo.cardNumber?.trim()) {
       newErrors.cardNumber = 'Card number is required';
     } else if (!validateCardNumber(paymentInfo.cardNumber)) {
       newErrors.cardNumber = 'Please enter a valid card number (13-19 digits)';
     }
-    
+
     // Expiry Date validation
     if (!paymentInfo.expiryDate?.trim()) {
       newErrors.expiryDate = 'Expiry date is required';
     } else if (!validateExpiryDate(paymentInfo.expiryDate)) {
       newErrors.expiryDate = 'Please enter a valid expiry date (MM/YY) that is not expired';
     }
-    
+
     // CVV validation
     if (!paymentInfo.cvv?.trim()) {
       newErrors.cvv = 'CVV is required';
     } else if (!validateCVV(paymentInfo.cvv)) {
       newErrors.cvv = 'Please enter a valid CVV (3-4 digits)';
     }
-    
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -243,7 +243,7 @@ const BookingPage = () => {
   const handleNext = () => {
     if (activeStep === 0 && !validatePassengerDetails()) return;
     if (activeStep === 1 && !validatePaymentInfo()) return;
-    
+
     if (activeStep === steps.length - 1) {
       handleBookingSubmit();
     } else {
@@ -259,7 +259,7 @@ const BookingPage = () => {
     const updatedPassengers = [...passengers];
     updatedPassengers[index][field] = value;
     setPassengers(updatedPassengers);
-    
+
     // Clear specific field error when user starts typing
     if (errors[`passenger${index}_${field}`]) {
       const newErrors = { ...errors };
@@ -279,9 +279,9 @@ const BookingPage = () => {
       value = value.replace(/\D/g, '');
       if (value.length > 4) value = value.substring(0, 4);
     }
-    
+
     setPaymentInfo(prev => ({ ...prev, [field]: value }));
-    
+
     // Clear field error when user starts typing
     if (errors[field]) {
       const newErrors = { ...errors };
@@ -299,7 +299,7 @@ const BookingPage = () => {
     try {
       // Simulate booking API call
       await new Promise(resolve => setTimeout(resolve, 3000));
-      
+
       // Save booking to localStorage (in a real app, this would be sent to backend)
       const bookingData = {
         bookingReference: generateBookingReference(),
@@ -313,11 +313,11 @@ const BookingPage = () => {
         bookingDate: new Date().toISOString(),
         status: 'confirmed'
       };
-      
+
       const existingBookings = JSON.parse(localStorage.getItem('confirmedBookings') || '[]');
       existingBookings.push(bookingData);
       localStorage.setItem('confirmedBookings', JSON.stringify(existingBookings));
-      
+
       setBookingComplete(true);
     } catch (error) {
       setErrors({ booking: 'Booking failed. Please try again.' });
@@ -353,7 +353,7 @@ const BookingPage = () => {
     const basePrice = flight?.price || 0;
     const numPassengers = passengers.length;
     const taxes = basePrice * 0.12;
-    const fees = 500; 
+    const fees = 500;
     return (basePrice * numPassengers) + taxes + fees;
   };
 
@@ -419,7 +419,7 @@ const BookingPage = () => {
                   onChange={(e) => handlePassengerChange(index, 'phone', e.target.value)}
                   error={!!errors[`passenger${index}_phone`]}
                   helperText={errors[`passenger${index}_phone`]}
-                  placeholder="+91 98765 43210"
+                  placeholder="9876543210"
                   inputProps={{ maxLength: 15 }}
                 />
               </Grid>
@@ -433,7 +433,7 @@ const BookingPage = () => {
                   error={!!errors[`passenger${index}_dateOfBirth`]}
                   helperText={errors[`passenger${index}_dateOfBirth`]}
                   InputLabelProps={{ shrink: true }}
-                  inputProps={{ 
+                  inputProps={{
                     max: new Date().toISOString().split('T')[0],
                     min: new Date(new Date().getFullYear() - 120, 0, 1).toISOString().split('T')[0]
                   }}
@@ -597,7 +597,7 @@ const BookingPage = () => {
             <Typography variant="body2" color="text.secondary" mb={3}>
               Please review your booking details before confirming
             </Typography>
-            
+
             <Paper sx={{ p: 2, mb: 3, textAlign: 'left' }}>
               <Typography variant="subtitle2" gutterBottom>
                 Passengers:
@@ -668,7 +668,7 @@ const BookingPage = () => {
                 <Typography variant="h6" gutterBottom>
                   Flight Summary
                 </Typography>
-                
+
                 {/* Flight Details */}
                 <Box mb={3}>
                   <Box display="flex" alignItems="center" mb={2}>
@@ -692,7 +692,7 @@ const BookingPage = () => {
                         {flight.origin}
                       </Typography>
                     </Box>
-                    
+
                     <Box textAlign="center">
                       <Typography variant="body2" color="text.secondary">
                         {formatDuration(flight.duration)}
@@ -702,7 +702,7 @@ const BookingPage = () => {
                         {flight.stops === 0 ? 'Non-stop' : `${flight.stops} stop`}
                       </Typography>
                     </Box>
-                    
+
                     <Box textAlign="center">
                       <Typography variant="h6" fontWeight="bold">
                         {formatTime(flight.arrival)}
@@ -720,7 +720,7 @@ const BookingPage = () => {
                 <Typography variant="h6" gutterBottom>
                   Price Breakdown
                 </Typography>
-                
+
                 <Box mb={2}>
                   <Box display="flex" justifyContent="space-between" mb={1}>
                     <Typography variant="body2">

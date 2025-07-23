@@ -166,9 +166,9 @@ const FlightResultsDisplay = () => {
       case 'duration':
         return (a.outbound?.durationInMinutes || 0) - (b.outbound?.durationInMinutes || 0);
       case 'departure':
-        const dateA = new Date(a.outbound?.departure || 0);
+        { const dateA = new Date(a.outbound?.departure || 0);
         const dateB = new Date(b.outbound?.departure || 0);
-        return dateA - dateB;
+        return dateA - dateB; }
       default:
         return 0;
     }
