@@ -90,7 +90,7 @@ GET /flights/detail	📄 (Optional) Retrieves detailed info for a selected fligh
 
 ---
 
-## 🧪 Development Tips
+## 🧪 Development 
 
 * ✅ All state and data flow is managed through `FlightContext`
 * ✨ Use `useFlights.js` for searching and transforming API responses
