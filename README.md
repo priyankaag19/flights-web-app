@@ -81,11 +81,11 @@ GET /flights/detail	📄 (Optional) Retrieves detailed info for a selected fligh
 
 ## 📦 Dependencies
 
-* **React 18**
+* **React 19**
 * **Vite**
 * **Material UI**
 * **Lucide React Icons**
-* **RapidAPI Flights API**
+* **RapidAPI Flights API--Flights Scraper Sky**
 * **Axios**
 
 ---
