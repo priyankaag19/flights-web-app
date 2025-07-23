@@ -34,7 +34,6 @@ const Header = ({ onMenuClick }) => {
   const handleClose = () => {
     setAnchorEl(null);
   };
-console.log('RapidAPI Key:', import.meta.env.VITE_RAPIDAPI_KEY);
 
   const handleNavigation = (path) => {
     navigate(path);
@@ -63,14 +62,14 @@ console.log('RapidAPI Key:', import.meta.env.VITE_RAPIDAPI_KEY);
             <MenuIcon />
           </IconButton>
         )}
-        
+
         <Flight sx={{ mr: 2 }} />
-        
+
         <Typography
           variant="h6"
           component="div"
-          sx={{ 
-            flexGrow: 1, 
+          sx={{
+            flexGrow: 1,
             cursor: 'pointer',
             '&:hover': { opacity: 0.8 }
           }}
@@ -85,22 +84,22 @@ console.log('RapidAPI Key:', import.meta.env.VITE_RAPIDAPI_KEY);
               color="inherit"
               startIcon={<Explore />}
               onClick={handleExplore}
-              sx={{ 
-                '&:hover': { 
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)' 
+              sx={{
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)'
                 }
               }}
             >
               Explore
             </Button>
-            
+
             <Button
               color="inherit"
               startIcon={<CardTravel />}
               onClick={handleTrips}
-              sx={{ 
-                '&:hover': { 
-                  backgroundColor: 'rgba(255, 255, 255, 0.1)' 
+              sx={{
+                '&:hover': {
+                  backgroundColor: 'rgba(255, 255, 255, 0.1)'
                 }
               }}
             >

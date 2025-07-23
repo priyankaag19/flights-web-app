@@ -51,9 +51,9 @@ const ResultsSummary = styled(Box)(({ theme }) => ({
   gap: theme.spacing(1),
 }));
 
-const FlightList = ({ 
-  flights = [], 
-  loading = false, 
+const FlightList = ({
+  flights = [],
+  loading = false,
   error = null,
   filters = {},
   searchParams = {},
@@ -65,7 +65,7 @@ const FlightList = ({
   const [viewMode, setViewMode] = useState('list');
   const [currentPage, setCurrentPage] = useState(1);
   const [favorites, setFavorites] = useState(new Set());
-  
+
   const itemsPerPage = 10;
 
   // Sort flights
@@ -273,12 +273,12 @@ const FlightList = ({
             </Typography>
           )}
         </Box>
-        
+
         <Box display="flex" alignItems="center" gap={1}>
-          <Chip 
-            label={`Page ${currentPage} of ${totalPages}`} 
-            size="small" 
-            variant="outlined" 
+          <Chip
+            label={`Page ${currentPage} of ${totalPages}`}
+            size="small"
+            variant="outlined"
           />
         </Box>
       </ResultsSummary>

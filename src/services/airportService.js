@@ -8,12 +8,12 @@ export class AirportService {
       }
 
       console.log('🔍 AirportService: Searching for:', query);
-      
+
       // Clean the query - remove any parentheses and extra info
       const cleanQuery = query.replace(/\s*\([^)]*\)/g, '').trim();
-      
+
       const response = await api.get('/flights/auto-complete', {
-        params: { 
+        params: {
           query: cleanQuery,
           limit: 10
         }
@@ -23,7 +23,7 @@ export class AirportService {
 
       // Handle different possible response structures
       let airportData = [];
-      
+
       if (response.data?.data) {
         airportData = response.data.data;
       } else if (Array.isArray(response.data)) {
@@ -66,7 +66,7 @@ export class AirportService {
         status: error.response?.status,
         data: error.response?.data
       });
-      
+
       // Don't throw here, return empty array to prevent cascading errors
       return [];
     }
@@ -87,15 +87,15 @@ export class AirportService {
         `nearby:${lat},${lng}`,
         `geo:${lat},${lng}`
       ];
-      
+
       let airportData = [];
-      
+
       for (const query of queries) {
         try {
           const response = await api.get('/flights/auto-complete', {
             params: { query, limit: 20 }
           });
-          
+
           if (response.data?.data?.length > 0) {
             airportData = response.data.data;
             console.log(`✅ Found nearby airports with query: ${query}`);
@@ -113,16 +113,16 @@ export class AirportService {
         try {
           const response = await api.get('/flights/airports');
           const allAirports = response.data?.data || [];
-          
+
           // Filter airports within reasonable distance (this is approximate)
           airportData = allAirports.filter(airport => {
             if (!airport.coordinates?.lat || !airport.coordinates?.lng) return false;
-            
+
             const distance = Math.sqrt(
-              Math.pow(airport.coordinates.lat - lat, 2) + 
+              Math.pow(airport.coordinates.lat - lat, 2) +
               Math.pow(airport.coordinates.lng - lng, 2)
             );
-            
+
             return distance < 5; // Roughly 5 degrees (very approximate)
           });
         } catch (fallbackErr) {
@@ -131,7 +131,7 @@ export class AirportService {
       }
 
       return this.transformAirportData(airportData);
-      
+
     } catch (error) {
       console.error('❌ AirportService: Nearby airports error:', error);
       throw new Error(`Failed to get nearby airports: ${error.message}`);
@@ -141,16 +141,16 @@ export class AirportService {
   static async getAllAirports() {
     try {
       console.log('📋 AirportService: Getting all airports');
-      
+
       const response = await api.get('/flights/airports');
-      
+
       let airportData = [];
       if (response.data?.data) {
         airportData = response.data.data;
       } else if (Array.isArray(response.data)) {
         airportData = response.data;
       }
-      
+
       return this.transformAirportData(airportData);
     } catch (error) {
       console.error('❌ AirportService: Get all airports error:', error);
@@ -171,15 +171,15 @@ export class AirportService {
       });
 
       const airportData = response.data?.data || response.data;
-      
+
       if (!airportData) {
         throw new Error('Airport not found');
       }
 
-      return Array.isArray(airportData) 
+      return Array.isArray(airportData)
         ? this.transformAirportData(airportData)[0]
         : this.transformSingleAirport(airportData);
-        
+
     } catch (error) {
       console.error('❌ AirportService: Get airport by skyId error:', error);
       throw new Error(`Failed to fetch airport details: ${error.message}`);

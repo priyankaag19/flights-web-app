@@ -146,14 +146,14 @@ const FlightFilters = ({ filters, onFiltersChange, onClearAll }) => {
           <FilterList />
           <Typography variant="h6">Filters</Typography>
           {getActiveFiltersCount() > 0 && (
-            <Chip 
-              label={getActiveFiltersCount()} 
-              size="small" 
-              color="primary" 
+            <Chip
+              label={getActiveFiltersCount()}
+              size="small"
+              color="primary"
             />
           )}
         </Box>
-        <Button 
+        <Button
           startIcon={<Clear />}
           onClick={onClearAll}
           size="small"
@@ -165,8 +165,8 @@ const FlightFilters = ({ filters, onFiltersChange, onClearAll }) => {
 
       <FilterCard>
         {/* Price Range */}
-        <Accordion 
-          expanded={expanded.price} 
+        <Accordion
+          expanded={expanded.price}
           onChange={handleExpandChange('price')}
         >
           <AccordionSummary expandIcon={<ExpandMore />}>
@@ -199,8 +199,8 @@ const FlightFilters = ({ filters, onFiltersChange, onClearAll }) => {
         <Divider />
 
         {/* Stops */}
-        <Accordion 
-          expanded={expanded.stops} 
+        <Accordion
+          expanded={expanded.stops}
           onChange={handleExpandChange('stops')}
         >
           <AccordionSummary expandIcon={<ExpandMore />}>
@@ -240,8 +240,8 @@ const FlightFilters = ({ filters, onFiltersChange, onClearAll }) => {
         <Divider />
 
         {/* Airlines */}
-        <Accordion 
-          expanded={expanded.airlines} 
+        <Accordion
+          expanded={expanded.airlines}
           onChange={handleExpandChange('airlines')}
         >
           <AccordionSummary expandIcon={<ExpandMore />}>
@@ -277,8 +277,8 @@ const FlightFilters = ({ filters, onFiltersChange, onClearAll }) => {
         <Divider />
 
         {/* Departure Time */}
-        <Accordion 
-          expanded={expanded.departure} 
+        <Accordion
+          expanded={expanded.departure}
           onChange={handleExpandChange('departure')}
         >
           <AccordionSummary expandIcon={<ExpandMore />}>
@@ -307,8 +307,8 @@ const FlightFilters = ({ filters, onFiltersChange, onClearAll }) => {
         <Divider />
 
         {/* Flight Duration */}
-        <Accordion 
-          expanded={expanded.duration} 
+        <Accordion
+          expanded={expanded.duration}
           onChange={handleExpandChange('duration')}
         >
           <AccordionSummary expandIcon={<ExpandMore />}>
@@ -341,8 +341,8 @@ const FlightFilters = ({ filters, onFiltersChange, onClearAll }) => {
         <Divider />
 
         {/* Amenities */}
-        <Accordion 
-          expanded={expanded.amenities} 
+        <Accordion
+          expanded={expanded.amenities}
           onChange={handleExpandChange('amenities')}
         >
           <AccordionSummary expandIcon={<ExpandMore />}>

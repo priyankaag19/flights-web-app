@@ -62,7 +62,7 @@ const PassengerSelector = styled(Card)(({ theme }) => ({
 const FlightSearchForm = ({ onSearch, loading: externalLoading, initialValues = {} }) => {
   const navigate = useNavigate();
   const { handleSearch, loading: contextLoading } = useFlightContext();
-  
+
   const {
     airports,
     loading: airportsLoading,
@@ -78,14 +78,14 @@ const FlightSearchForm = ({ onSearch, loading: externalLoading, initialValues = 
   // Form state
   const [tripType, setTripType] = useState(initialValues.tripType || 'roundtrip');
   const [departureDate, setDepartureDate] = useState(
-    initialValues.departureDate ? 
-    new Date(initialValues.departureDate).toISOString().split('T')[0] : 
-    ''
+    initialValues.departureDate ?
+      new Date(initialValues.departureDate).toISOString().split('T')[0] :
+      ''
   );
   const [returnDate, setReturnDate] = useState(
-    initialValues.returnDate ? 
-    new Date(initialValues.returnDate).toISOString().split('T')[0] : 
-    ''
+    initialValues.returnDate ?
+      new Date(initialValues.returnDate).toISOString().split('T')[0] :
+      ''
   );
   const [passengers, setPassengers] = useState({
     adults: initialValues.adults || 1,
@@ -104,7 +104,7 @@ const FlightSearchForm = ({ onSearch, loading: externalLoading, initialValues = 
   // Form submission handler
   const onSubmit = async (e) => {
     e.preventDefault();
-    
+
     // Validate required fields
     if (!selectedOrigin || !selectedDestination || !departureDate) {
       alert('Please fill in all required fields');
@@ -128,8 +128,6 @@ const FlightSearchForm = ({ onSearch, loading: externalLoading, initialValues = 
       infants: passengers.infants,
       cabinClass,
     };
-
-    console.log('📤 Submitting search with:', searchParams);
 
     try {
       // Use context handleSearch if available, otherwise use onSearch prop
@@ -184,14 +182,14 @@ const FlightSearchForm = ({ onSearch, loading: externalLoading, initialValues = 
   const handlePassengerChange = (type, increment) => {
     setPassengers(prev => {
       const newValue = Math.max(0, prev[type] + increment);
-      
+
       // Ensure at least 1 adult
       if (type === 'adults' && newValue < 1) return prev;
-      
+
       // Limit total passengers
       const total = Object.values({ ...prev, [type]: newValue }).reduce((a, b) => a + b, 0);
       if (total > 9) return prev;
-      
+
       return { ...prev, [type]: newValue };
     });
   };
@@ -203,12 +201,12 @@ const FlightSearchForm = ({ onSearch, loading: externalLoading, initialValues = 
   const getPassengerText = () => {
     const total = getTotalPassengers();
     if (total === 1) return '1 passenger';
-    
+
     const parts = [];
     if (passengers.adults > 0) parts.push(`${passengers.adults} adult${passengers.adults > 1 ? 's' : ''}`);
     if (passengers.children > 0) parts.push(`${passengers.children} child${passengers.children > 1 ? 'ren' : ''}`);
     if (passengers.infants > 0) parts.push(`${passengers.infants} infant${passengers.infants > 1 ? 's' : ''}`);
-    
+
     return parts.join(', ');
   };
 
@@ -228,7 +226,7 @@ const FlightSearchForm = ({ onSearch, loading: externalLoading, initialValues = 
     setToInputValue('');
   };
 
-  const isSearchDisabled = !selectedOrigin || !selectedDestination || !departureDate || 
+  const isSearchDisabled = !selectedOrigin || !selectedDestination || !departureDate ||
     (tripType === 'roundtrip' && !returnDate) || isLoading;
 
   // Custom renderOption function for airport autocomplete
@@ -307,9 +305,9 @@ const FlightSearchForm = ({ onSearch, loading: externalLoading, initialValues = 
 
           {/* Swap Button */}
           <Grid item xs={12} md="auto" sx={{ textAlign: 'center' }}>
-            <IconButton 
+            <IconButton
               onClick={handleSwapAirports}
-              sx={{ 
+              sx={{
                 backgroundColor: 'background.paper',
                 '&:hover': { backgroundColor: 'grey.100' },
               }}
@@ -415,7 +413,7 @@ const FlightSearchForm = ({ onSearch, loading: externalLoading, initialValues = 
                       <Typography variant="subtitle2" gutterBottom>
                         Passengers
                       </Typography>
-                      
+
                       {[
                         { key: 'adults', label: 'Adults', sublabel: '12+ years' },
                         { key: 'children', label: 'Children', sublabel: '2-11 years' },

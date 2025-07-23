@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AirportService } from '../services/airportService';
+import { FlightService } from '../services/flightService';
 
 export const useFlights = () => {
   const [flights, setFlights] = useState([]);
@@ -13,104 +13,35 @@ export const useFlights = () => {
     setSearchPerformed(true);
     
     try {
-      let endpoint = '';
-      let requestData = {};
+      console.log('🔍 Starting flight search with params:', searchParams);
 
-      // Determine which API endpoint to use based on search type
-      if (searchParams.tripType === 'roundtrip') {
-        endpoint = 'flights/search-roundtrip';
-        requestData = {
-          originSkyId: searchParams.from?.skyId || searchParams.from,
-          destinationSkyId: searchParams.to?.skyId || searchParams.to,
-          originEntityId: searchParams.from?.entityId,
-          destinationEntityId: searchParams.to?.entityId,
-          departureDate: searchParams.departureDate instanceof Date ? 
-            searchParams.departureDate.toISOString().split('T')[0] : 
-            searchParams.departureDate,
-          returnDate: searchParams.returnDate instanceof Date ? 
-            searchParams.returnDate.toISOString().split('T')[0] : 
-            searchParams.returnDate,
-          adults: searchParams.adults || 1,
-          children: searchParams.children || 0,
-          infants: searchParams.infants || 0,
-          cabinClass: searchParams.cabinClass || 'economy',
-          currency: 'INR',
-          market: 'IN',
-          countryCode: 'IN'
-        };
-      } else {
-        endpoint = 'flights/search-one-way';
-        requestData = {
-          originSkyId: searchParams.from?.skyId || searchParams.from,
-          destinationSkyId: searchParams.to?.skyId || searchParams.to,
-          originEntityId: searchParams.from?.entityId,
-          destinationEntityId: searchParams.to?.entityId,
-          departureDate: searchParams.departureDate instanceof Date ? 
-            searchParams.departureDate.toISOString().split('T')[0] : 
-            searchParams.departureDate,
-          adults: searchParams.adults || 1,
-          children: searchParams.children || 0,
-          infants: searchParams.infants || 0,
-          cabinClass: searchParams.cabinClass || 'economy',
-          currency: 'INR',
-          market: 'IN',
-          countryCode: 'IN'
-        };
-      }
+      // Prepare the request data
+      const requestData = {
+        tripType: searchParams.tripType,
+        from: searchParams.from,
+        to: searchParams.to,
+        departureDate: searchParams.departureDate instanceof Date ? 
+          searchParams.departureDate.toISOString().split('T')[0] : 
+          searchParams.departureDate,
+        returnDate: searchParams.returnDate instanceof Date ? 
+          searchParams.returnDate.toISOString().split('T')[0] : 
+          searchParams.returnDate,
+        adults: searchParams.adults || 1,
+        children: searchParams.children || 0,
+        infants: searchParams.infants || 0,
+        cabinClass: searchParams.cabinClass || 'economy',
+        currency: 'INR',
+        market: 'IN',
+        countryCode: 'IN'
+      };
 
-      console.log('Making API call with:', { endpoint, requestData });
-
-      // Try different ways to call the service based on common patterns
-      let response;
-      try {
-        // Pattern 1: Static method
-        if (typeof AirportService.request === 'function') {
-          response = await AirportService.request('GET', endpoint, requestData);
-        } 
-        // Pattern 2: Instance method with request
-        else {
-          const airportService = new AirportService();
-          if (typeof airportService.request === 'function') {
-            response = await airportService.request('GET', endpoint, requestData);
-          }
-          // Pattern 3: Instance method with different name
-          else if (typeof airportService.get === 'function') {
-            response = await airportService.get(endpoint, requestData);
-          }
-          // Pattern 4: Instance method with post
-          else if (typeof airportService.post === 'function') {
-            response = await airportService.post(endpoint, requestData);
-          }
-          // Pattern 5: Direct call method
-          else if (typeof airportService.call === 'function') {
-            response = await airportService.call(endpoint, requestData);
-          }
-          else {
-            throw new Error('AirportService method not found. Available methods: ' + Object.getOwnPropertyNames(airportService));
-          }
-        }
-      } catch (serviceError) {
-        console.error('Service error:', serviceError);
-        throw serviceError;
-      }
+      // Use FlightService instead of AirportService
+      const flightData = await FlightService.searchFlights(requestData);
       
-      console.log('API Response:', response);
-      
-      // Handle different response structures
-      let flightData = [];
-      if (response.data) {
-        // Extract flights from different possible response structures
-        flightData = response.data.itineraries || 
-                   response.data.flights || 
-                   response.data.results || 
-                   response.data || 
-                   [];
-      }
-
-      console.log('Extracted flight data:', flightData);
+      console.log('✅ Raw flight data received:', flightData);
 
       // Transform the data to match our component expectations
-      const transformedFlights = flightData.map((flight, index) => ({
+      const transformedFlights = Array.isArray(flightData) ? flightData.map((flight, index) => ({
         id: flight.id || `flight-${index}`,
         
         // Airline information
@@ -214,14 +145,30 @@ export const useFlights = () => {
         amenities: flight.amenities || 
                   flight.legs?.[0]?.segments?.[0]?.amenities || 
                   []
-      }));
+      })) : [];
 
-      console.log('Transformed flights:', transformedFlights);
+      console.log('✅ Transformed flights:', transformedFlights);
       setFlights(transformedFlights);
       
     } catch (err) {
-      console.error('Flight search error:', err);
-      setError(err.message || 'Failed to search flights. Please try again.');
+      console.error('❌ Flight search error:', err);
+      
+      // Set user-friendly error messages
+      let errorMessage = 'Failed to search flights. Please try again.';
+      
+      if (err.message?.includes('400')) {
+        errorMessage = 'Invalid search parameters. Please check your search criteria.';
+      } else if (err.message?.includes('401') || err.message?.includes('403')) {
+        errorMessage = 'Authentication error. Please check your API configuration.';
+      } else if (err.message?.includes('429')) {
+        errorMessage = 'Too many requests. Please wait a moment and try again.';
+      } else if (err.message?.includes('timeout')) {
+        errorMessage = 'Request timeout. Please check your connection and try again.';
+      } else if (err.message?.includes('Network Error')) {
+        errorMessage = 'Network error. Please check your internet connection.';
+      }
+      
+      setError(errorMessage);
       setFlights([]);
     } finally {
       setLoading(false);

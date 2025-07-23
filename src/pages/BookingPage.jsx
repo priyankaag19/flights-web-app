@@ -25,7 +25,8 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  CircularProgress
+  CircularProgress,
+  FormHelperText
 } from '@mui/material';
 import { styled } from '@mui/material/styles';
 import {
@@ -91,26 +92,150 @@ const BookingPage = () => {
     setPassengers(initialPassengers);
   }, [flight, searchParams, navigate]);
 
+  // Validation functions
+  const validateEmail = (email) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+  };
+
+  const validatePhone = (phone) => {
+    const phoneRegex = /^[+]?[\d\s\-\(\)]{10,15}$/;
+    return phoneRegex.test(phone);
+  };
+
+  const validateName = (name) => {
+    const nameRegex = /^[a-zA-Z\s]{2,50}$/;
+    return nameRegex.test(name);
+  };
+
+  const validateDateOfBirth = (dob) => {
+    if (!dob) return false;
+    const today = new Date();
+    const birthDate = new Date(dob);
+    const age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      age--;
+    }
+    
+    return age >= 0 && age <= 120 && birthDate <= today;
+  };
+
+  const validateCardNumber = (cardNumber) => {
+    const cleaned = cardNumber.replace(/\s/g, '');
+    const cardRegex = /^\d{13,19}$/;
+    return cardRegex.test(cleaned);
+  };
+
+  const validateExpiryDate = (expiry) => {
+    const expiryRegex = /^(0[1-9]|1[0-2])\/\d{2}$/;
+    if (!expiryRegex.test(expiry)) return false;
+    
+    const [month, year] = expiry.split('/');
+    const currentDate = new Date();
+    const currentYear = currentDate.getFullYear() % 100;
+    const currentMonth = currentDate.getMonth() + 1;
+    
+    const expiryYear = parseInt(year);
+    const expiryMonth = parseInt(month);
+    
+    if (expiryYear < currentYear) return false;
+    if (expiryYear === currentYear && expiryMonth <= currentMonth) return false;
+    
+    return true;
+  };
+
+  const validateCVV = (cvv) => {
+    const cvvRegex = /^\d{3,4}$/;
+    return cvvRegex.test(cvv);
+  };
+
   const validatePassengerDetails = () => {
     const newErrors = {};
+    
     passengers.forEach((passenger, index) => {
-      if (!passenger.firstName) newErrors[`passenger${index}_firstName`] = 'First name is required';
-      if (!passenger.lastName) newErrors[`passenger${index}_lastName`] = 'Last name is required';
-      if (!passenger.email) newErrors[`passenger${index}_email`] = 'Email is required';
-      if (!passenger.phone) newErrors[`passenger${index}_phone`] = 'Phone is required';
-      if (!passenger.dateOfBirth) newErrors[`passenger${index}_dateOfBirth`] = 'Date of birth is required';
-      if (!passenger.gender) newErrors[`passenger${index}_gender`] = 'Gender is required';
+      // First Name validation
+      if (!passenger.firstName.trim()) {
+        newErrors[`passenger${index}_firstName`] = 'First name is required';
+      } else if (!validateName(passenger.firstName)) {
+        newErrors[`passenger${index}_firstName`] = 'First name must contain only letters and be 2-50 characters';
+      }
+      
+      // Last Name validation
+      if (!passenger.lastName.trim()) {
+        newErrors[`passenger${index}_lastName`] = 'Last name is required';
+      } else if (!validateName(passenger.lastName)) {
+        newErrors[`passenger${index}_lastName`] = 'Last name must contain only letters and be 2-50 characters';
+      }
+      
+      // Email validation
+      if (!passenger.email.trim()) {
+        newErrors[`passenger${index}_email`] = 'Email is required';
+      } else if (!validateEmail(passenger.email)) {
+        newErrors[`passenger${index}_email`] = 'Please enter a valid email address';
+      }
+      
+      // Phone validation
+      if (!passenger.phone.trim()) {
+        newErrors[`passenger${index}_phone`] = 'Phone number is required';
+      } else if (!validatePhone(passenger.phone)) {
+        newErrors[`passenger${index}_phone`] = 'Please enter a valid phone number (10-15 digits)';
+      }
+      
+      // Date of Birth validation
+      if (!passenger.dateOfBirth) {
+        newErrors[`passenger${index}_dateOfBirth`] = 'Date of birth is required';
+      } else if (!validateDateOfBirth(passenger.dateOfBirth)) {
+        newErrors[`passenger${index}_dateOfBirth`] = 'Please enter a valid date of birth';
+      }
+      
+      // Gender validation
+      if (!passenger.gender) {
+        newErrors[`passenger${index}_gender`] = 'Gender selection is required';
+      }
+      
+      // Nationality validation
+      if (!passenger.nationality) {
+        newErrors[`passenger${index}_nationality`] = 'Nationality is required';
+      }
     });
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const validatePaymentInfo = () => {
     const newErrors = {};
-    if (!paymentInfo.cardNumber) newErrors.cardNumber = 'Card number is required';
-    if (!paymentInfo.expiryDate) newErrors.expiryDate = 'Expiry date is required';
-    if (!paymentInfo.cvv) newErrors.cvv = 'CVV is required';
-    if (!paymentInfo.cardholderName) newErrors.cardholderName = 'Cardholder name is required';
+    
+    // Cardholder Name validation
+    if (!paymentInfo.cardholderName?.trim()) {
+      newErrors.cardholderName = 'Cardholder name is required';
+    } else if (!validateName(paymentInfo.cardholderName)) {
+      newErrors.cardholderName = 'Cardholder name must contain only letters and be 2-50 characters';
+    }
+    
+    // Card Number validation
+    if (!paymentInfo.cardNumber?.trim()) {
+      newErrors.cardNumber = 'Card number is required';
+    } else if (!validateCardNumber(paymentInfo.cardNumber)) {
+      newErrors.cardNumber = 'Please enter a valid card number (13-19 digits)';
+    }
+    
+    // Expiry Date validation
+    if (!paymentInfo.expiryDate?.trim()) {
+      newErrors.expiryDate = 'Expiry date is required';
+    } else if (!validateExpiryDate(paymentInfo.expiryDate)) {
+      newErrors.expiryDate = 'Please enter a valid expiry date (MM/YY) that is not expired';
+    }
+    
+    // CVV validation
+    if (!paymentInfo.cvv?.trim()) {
+      newErrors.cvv = 'CVV is required';
+    } else if (!validateCVV(paymentInfo.cvv)) {
+      newErrors.cvv = 'Please enter a valid CVV (3-4 digits)';
+    }
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -134,10 +259,39 @@ const BookingPage = () => {
     const updatedPassengers = [...passengers];
     updatedPassengers[index][field] = value;
     setPassengers(updatedPassengers);
+    
+    // Clear specific field error when user starts typing
+    if (errors[`passenger${index}_${field}`]) {
+      const newErrors = { ...errors };
+      delete newErrors[`passenger${index}_${field}`];
+      setErrors(newErrors);
+    }
   };
 
   const handlePaymentChange = (field, value) => {
+    // Format card number and expiry date as user types
+    if (field === 'cardNumber') {
+      value = value.replace(/\s/g, '').replace(/(.{4})/g, '$1 ').trim();
+    } else if (field === 'expiryDate') {
+      value = value.replace(/\D/g, '').replace(/(\d{2})(\d)/, '$1/$2');
+      if (value.length > 5) value = value.substring(0, 5);
+    } else if (field === 'cvv') {
+      value = value.replace(/\D/g, '');
+      if (value.length > 4) value = value.substring(0, 4);
+    }
+    
     setPaymentInfo(prev => ({ ...prev, [field]: value }));
+    
+    // Clear field error when user starts typing
+    if (errors[field]) {
+      const newErrors = { ...errors };
+      delete newErrors[field];
+      setErrors(newErrors);
+    }
+  };
+
+  const generateBookingReference = () => {
+    return 'BK' + Math.random().toString(36).substr(2, 9).toUpperCase();
   };
 
   const handleBookingSubmit = async () => {
@@ -145,6 +299,25 @@ const BookingPage = () => {
     try {
       // Simulate booking API call
       await new Promise(resolve => setTimeout(resolve, 3000));
+      
+      // Save booking to localStorage (in a real app, this would be sent to backend)
+      const bookingData = {
+        bookingReference: generateBookingReference(),
+        flight,
+        passengers,
+        paymentInfo: {
+          cardholderName: paymentInfo.cardholderName,
+          cardNumber: '**** **** **** ' + paymentInfo.cardNumber.slice(-4),
+        },
+        totalAmount: calculateTotalPrice(),
+        bookingDate: new Date().toISOString(),
+        status: 'confirmed'
+      };
+      
+      const existingBookings = JSON.parse(localStorage.getItem('confirmedBookings') || '[]');
+      existingBookings.push(bookingData);
+      localStorage.setItem('confirmedBookings', JSON.stringify(existingBookings));
+      
       setBookingComplete(true);
     } catch (error) {
       setErrors({ booking: 'Booking failed. Please try again.' });
@@ -207,83 +380,100 @@ const BookingPage = () => {
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="First Name"
+                  label="First Name *"
                   value={passenger.firstName}
                   onChange={(e) => handlePassengerChange(index, 'firstName', e.target.value)}
                   error={!!errors[`passenger${index}_firstName`]}
                   helperText={errors[`passenger${index}_firstName`]}
+                  inputProps={{ maxLength: 50 }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Last Name"
+                  label="Last Name *"
                   value={passenger.lastName}
                   onChange={(e) => handlePassengerChange(index, 'lastName', e.target.value)}
                   error={!!errors[`passenger${index}_lastName`]}
                   helperText={errors[`passenger${index}_lastName`]}
+                  inputProps={{ maxLength: 50 }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Email"
+                  label="Email Address *"
                   type="email"
                   value={passenger.email}
                   onChange={(e) => handlePassengerChange(index, 'email', e.target.value)}
                   error={!!errors[`passenger${index}_email`]}
                   helperText={errors[`passenger${index}_email`]}
+                  inputProps={{ maxLength: 100 }}
                 />
               </Grid>
               <Grid item xs={12} sm={6}>
                 <TextField
                   fullWidth
-                  label="Phone Number"
+                  label="Phone Number *"
                   value={passenger.phone}
                   onChange={(e) => handlePassengerChange(index, 'phone', e.target.value)}
                   error={!!errors[`passenger${index}_phone`]}
                   helperText={errors[`passenger${index}_phone`]}
+                  placeholder="+91 98765 43210"
+                  inputProps={{ maxLength: 15 }}
                 />
               </Grid>
               <Grid item xs={12} sm={4}>
                 <TextField
                   fullWidth
-                  label="Date of Birth"
+                  label="Date of Birth *"
                   type="date"
                   value={passenger.dateOfBirth}
                   onChange={(e) => handlePassengerChange(index, 'dateOfBirth', e.target.value)}
                   error={!!errors[`passenger${index}_dateOfBirth`]}
                   helperText={errors[`passenger${index}_dateOfBirth`]}
                   InputLabelProps={{ shrink: true }}
+                  inputProps={{ 
+                    max: new Date().toISOString().split('T')[0],
+                    min: new Date(new Date().getFullYear() - 120, 0, 1).toISOString().split('T')[0]
+                  }}
                 />
               </Grid>
               <Grid item xs={12} sm={4}>
                 <FormControl fullWidth error={!!errors[`passenger${index}_gender`]}>
-                  <InputLabel>Gender</InputLabel>
+                  <InputLabel>Gender *</InputLabel>
                   <Select
                     value={passenger.gender}
                     onChange={(e) => handlePassengerChange(index, 'gender', e.target.value)}
-                    label="Gender"
+                    label="Gender *"
                   >
                     <MenuItem value="male">Male</MenuItem>
                     <MenuItem value="female">Female</MenuItem>
                     <MenuItem value="other">Other</MenuItem>
                   </Select>
+                  {errors[`passenger${index}_gender`] && (
+                    <FormHelperText>{errors[`passenger${index}_gender`]}</FormHelperText>
+                  )}
                 </FormControl>
               </Grid>
               <Grid item xs={12} sm={4}>
-                <FormControl fullWidth>
-                  <InputLabel>Nationality</InputLabel>
+                <FormControl fullWidth error={!!errors[`passenger${index}_nationality`]}>
+                  <InputLabel>Nationality *</InputLabel>
                   <Select
                     value={passenger.nationality}
                     onChange={(e) => handlePassengerChange(index, 'nationality', e.target.value)}
-                    label="Nationality"
+                    label="Nationality *"
                   >
                     <MenuItem value="Indian">Indian</MenuItem>
                     <MenuItem value="American">American</MenuItem>
                     <MenuItem value="British">British</MenuItem>
+                    <MenuItem value="Canadian">Canadian</MenuItem>
+                    <MenuItem value="Australian">Australian</MenuItem>
                     <MenuItem value="Other">Other</MenuItem>
                   </Select>
+                  {errors[`passenger${index}_nationality`] && (
+                    <FormHelperText>{errors[`passenger${index}_nationality`]}</FormHelperText>
+                  )}
                 </FormControl>
               </Grid>
             </Grid>
@@ -306,44 +496,49 @@ const BookingPage = () => {
         <Grid item xs={12}>
           <TextField
             fullWidth
-            label="Cardholder Name"
+            label="Cardholder Name *"
             value={paymentInfo.cardholderName || ''}
             onChange={(e) => handlePaymentChange('cardholderName', e.target.value)}
             error={!!errors.cardholderName}
             helperText={errors.cardholderName}
+            placeholder="John Doe"
+            inputProps={{ maxLength: 50 }}
           />
         </Grid>
         <Grid item xs={12}>
           <TextField
             fullWidth
-            label="Card Number"
+            label="Card Number *"
             value={paymentInfo.cardNumber || ''}
             onChange={(e) => handlePaymentChange('cardNumber', e.target.value)}
             error={!!errors.cardNumber}
             helperText={errors.cardNumber}
             placeholder="1234 5678 9012 3456"
+            inputProps={{ maxLength: 23 }}
           />
         </Grid>
         <Grid item xs={6}>
           <TextField
             fullWidth
-            label="Expiry Date"
+            label="Expiry Date *"
             value={paymentInfo.expiryDate || ''}
             onChange={(e) => handlePaymentChange('expiryDate', e.target.value)}
             error={!!errors.expiryDate}
             helperText={errors.expiryDate}
             placeholder="MM/YY"
+            inputProps={{ maxLength: 5 }}
           />
         </Grid>
         <Grid item xs={6}>
           <TextField
             fullWidth
-            label="CVV"
+            label="CVV *"
             value={paymentInfo.cvv || ''}
             onChange={(e) => handlePaymentChange('cvv', e.target.value)}
             error={!!errors.cvv}
             helperText={errors.cvv}
             placeholder="123"
+            inputProps={{ maxLength: 4 }}
           />
         </Grid>
         <Grid item xs={12}>

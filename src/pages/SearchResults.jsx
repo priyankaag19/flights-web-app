@@ -98,7 +98,7 @@ const SearchResults = () => {
   const handleSortChange = (event) => {
     const sortValue = event.target.value;
     setSortBy(sortValue);
-    
+
     const sortedFlights = [...flights].sort((a, b) => {
       switch (sortValue) {
         case 'price':
@@ -170,8 +170,8 @@ const SearchResults = () => {
       <Container maxWidth="lg" sx={{ py: 2 }}>
         {/* Search Form Header */}
         <SearchHeader elevation={2}>
-          <FlightSearchForm 
-            onSearch={handleNewSearch} 
+          <FlightSearchForm
+            onSearch={handleNewSearch}
             initialData={searchParams}
             compact={true}
           />
@@ -188,7 +188,7 @@ const SearchResults = () => {
           <Typography variant="h5" component="h1">
             {flights.length > 0 ? `${flights.length} flights found` : 'No flights found'}
           </Typography>
-          
+
           <Box display="flex" gap={2} alignItems="center">
             <FormControl size="small" sx={{ minWidth: 120 }}>
               <InputLabel>Sort by</InputLabel>
@@ -203,7 +203,7 @@ const SearchResults = () => {
                 <MenuItem value="rating">Rating</MenuItem>
               </Select>
             </FormControl>
-            
+
             <Button
               variant="outlined"
               startIcon={<FilterList />}
@@ -306,13 +306,13 @@ const SearchResults = () => {
                         </Typography>
                         <Box display="flex" alignItems="center" justifyContent="center" my={1}>
                           <FlightTakeoff fontSize="small" color="action" />
-                          <Box 
-                            sx={{ 
-                              borderTop: 1, 
-                              borderColor: 'divider', 
-                              flex: 1, 
-                              mx: 1 
-                            }} 
+                          <Box
+                            sx={{
+                              borderTop: 1,
+                              borderColor: 'divider',
+                              flex: 1,
+                              mx: 1
+                            }}
                           />
                           <FlightLand fontSize="small" color="action" />
                         </Box>
@@ -341,7 +341,7 @@ const SearchResults = () => {
                       <Typography variant="body2" color="text.secondary">
                         per person
                       </Typography>
-                      
+
                       <Box mt={2} display="flex" gap={1} flexWrap="wrap">
                         {flight.amenities?.wifi && (
                           <Chip label="WiFi" size="small" variant="outlined" />
@@ -381,8 +381,8 @@ const SearchResults = () => {
             <Typography variant="body1" color="text.secondary" mb={4}>
               Try adjusting your search criteria or dates
             </Typography>
-            <Button 
-              variant="outlined" 
+            <Button
+              variant="outlined"
               onClick={() => setShowFilters(true)}
             >
               Modify Search

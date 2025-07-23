@@ -9,13 +9,13 @@ import Header from './components/common/Header';
 import Sidebar from './components/layout/Sidebar';
 import FlightSearchForm from './components/flight/FlightSearchForm';
 import FlightResultsDisplay from './components/flight/FlightResultsDisplay';
-
-// Pages (you'll need to create these)
 import HomePage from './pages/HomePage';
 import ExplorePage from './pages/ExplorePage';
 import TripsPage from './pages/TripsPage';
 import ProfilePage from './pages/ProfilePage';
 import SettingsPage from './pages/SettingsPage';
+import BookingPage from './pages/BookingPage';
+
 
 const theme = createTheme({
   palette: {
@@ -55,14 +55,14 @@ function App() {
         <Router>
           <Box sx={{ display: 'flex' }}>
             <Header onMenuClick={handleDrawerToggle} />
-            
+
             {!isMobile && (
               <Sidebar
                 mobileOpen={mobileOpen}
                 handleDrawerToggle={handleDrawerToggle}
               />
             )}
-            
+
             {isMobile && (
               <Sidebar
                 mobileOpen={mobileOpen}
@@ -76,8 +76,8 @@ function App() {
               sx={{
                 flexGrow: 1,
                 p: 3,
-                mt: 8, 
-                ml: isMobile ? 0 : '280px', 
+                mt: 8,
+                ml: isMobile ? 0 : '280px',
                 transition: theme.transitions.create(['margin'], {
                   easing: theme.transitions.easing.sharp,
                   duration: theme.transitions.duration.leavingScreen,
@@ -92,6 +92,7 @@ function App() {
                 <Route path="/trips" element={<TripsPage />} />
                 <Route path="/profile" element={<ProfilePage />} />
                 <Route path="/settings" element={<SettingsPage />} />
+                <Route path="/booking" element={<BookingPage />} />
               </Routes>
             </Box>
           </Box>

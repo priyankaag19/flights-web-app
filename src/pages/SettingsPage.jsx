@@ -7,7 +7,7 @@ const SettingsPage = () => {
       <Typography variant="h4" component="h1" gutterBottom>
         Settings
       </Typography>
-      
+
       <Paper sx={{ mt: 3 }}>
         <List>
           <ListItem>

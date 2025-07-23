@@ -14,13 +14,13 @@ api.interceptors.request.use(
   (config) => {
     // Only log the endpoint, not the full config which might contain sensitive data
     console.log('Making API request to:', config.url);
-    
+
     // Validate API key exists
     if (!import.meta.env.VITE_RAPIDAPI_KEY) {
       console.error('❌ RapidAPI key is missing! Please check your .env file');
       throw new Error('API key is required');
     }
-    
+
     return config;
   },
   (error) => {
@@ -40,7 +40,7 @@ api.interceptors.response.use(
       message: error.response?.data?.message || error.message,
       endpoint: error.config?.url
     });
-    
+
     // Provide more specific error messages based on status codes
     if (error.response?.status === 400) {
       error.message = 'Bad Request: Please check your search parameters';
@@ -53,7 +53,7 @@ api.interceptors.response.use(
     } else if (error.response?.status >= 500) {
       error.message = 'Server error: Please try again later';
     }
-    
+
     return Promise.reject(error);
   }
 );

@@ -64,12 +64,12 @@ const FlightRoute = styled(Box)(({ theme }) => ({
   },
 }));
 
-const FlightCard = ({ 
-  flight, 
-  onSelect, 
-  onFavorite, 
+const FlightCard = ({
+  flight,
+  onSelect,
+  onFavorite,
   onShare,
-  isFavorite = false 
+  isFavorite = false
 }) => {
   const {
     id,
@@ -147,8 +147,8 @@ const FlightCard = ({
           </Box>
 
           <Box display="flex" alignItems="center" gap={1}>
-            <IconButton 
-              size="small" 
+            <IconButton
+              size="small"
               onClick={handleFavoriteClick}
               color={isFavorite ? 'error' : 'default'}
             >
@@ -178,10 +178,10 @@ const FlightCard = ({
 
               <Box flex={1} textAlign="center" position="relative">
                 <div className="route-line" />
-                <Typography 
-                  variant="caption" 
+                <Typography
+                  variant="caption"
                   color="text.secondary"
-                  sx={{ 
+                  sx={{
                     position: 'absolute',
                     top: '-20px',
                     left: '50%',
@@ -191,10 +191,10 @@ const FlightCard = ({
                 >
                   {formatDuration(duration)}
                 </Typography>
-                <Typography 
-                  variant="caption" 
+                <Typography
+                  variant="caption"
                   color="text.secondary"
-                  sx={{ 
+                  sx={{
                     position: 'absolute',
                     bottom: '-15px',
                     left: '50%',
@@ -227,30 +227,30 @@ const FlightCard = ({
                   <Typography variant="caption">({rating})</Typography>
                 </Box>
               )}
-              
+
               {isRefundable && (
-                <Chip 
-                  label="Refundable" 
-                  size="small" 
-                  variant="outlined" 
-                  color="success" 
+                <Chip
+                  label="Refundable"
+                  size="small"
+                  variant="outlined"
+                  color="success"
                 />
               )}
 
               {baggage?.included && (
-                <Chip 
-                  label={`${baggage.weight}kg included`} 
-                  size="small" 
-                  variant="outlined" 
+                <Chip
+                  label={`${baggage.weight}kg included`}
+                  size="small"
+                  variant="outlined"
                 />
               )}
 
               {carbonEmission && (
-                <Chip 
-                  label={`${carbonEmission}kg CO₂`} 
-                  size="small" 
-                  variant="outlined" 
-                  color="info" 
+                <Chip
+                  label={`${carbonEmission}kg CO₂`}
+                  size="small"
+                  variant="outlined"
+                  color="info"
                 />
               )}
             </Box>
@@ -281,10 +281,10 @@ const FlightCard = ({
               per person
             </Typography>
             {price < 500 && (
-              <Chip 
-                label="Great Deal!" 
-                size="small" 
-                color="success" 
+              <Chip
+                label="Great Deal!"
+                size="small"
+                color="success"
                 variant="outlined"
                 sx={{ mt: 1 }}
               />
@@ -296,15 +296,15 @@ const FlightCard = ({
       <Divider />
 
       <CardActions sx={{ justifyContent: 'space-between', px: 2 }}>
-        <Button 
+        <Button
           startIcon={<InfoOutlined />}
-          variant="text" 
+          variant="text"
           size="small"
         >
           View Details
         </Button>
-        <Button 
-          variant="contained" 
+        <Button
+          variant="contained"
           color="primary"
           size="medium"
           sx={{ minWidth: 120 }}

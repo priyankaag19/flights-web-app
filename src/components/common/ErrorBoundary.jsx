@@ -1,7 +1,6 @@
 import React from 'react';
 import { Alert, AlertTitle, Box, Button } from '@mui/material';
 import { Refresh } from '@mui/icons-material';
-
 class ErrorBoundary extends React.Component {
   constructor(props) {
     super(props);
@@ -36,7 +35,6 @@ class ErrorBoundary extends React.Component {
         </Box>
       );
     }
-
     return this.props.children;
   }
 }

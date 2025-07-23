@@ -16,7 +16,7 @@ const ExplorePage = () => {
       <Typography variant="subtitle1" color="text.secondary" sx={{ mb: 4 }}>
         Discover amazing places around the world
       </Typography>
-      
+
       <Grid container spacing={3}>
         {destinations.map((dest, index) => (
           <Grid item xs={12} sm={6} md={3} key={index}>

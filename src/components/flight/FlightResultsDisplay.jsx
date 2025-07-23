@@ -1,311 +1,433 @@
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom'; // Add this import
+import {
+  Box,
+  Card,
+  CardContent,
+  Typography,
+  Button,
+  Select,
+  MenuItem,
+  FormControl,
+  InputLabel,
+  Chip,
+  Grid,
+  Slider,
+  Collapse,
+  IconButton,
+  Divider,
+  Paper,
+  CircularProgress,
+  Alert,
+  Container,
+  Stack,
+  Avatar,
+  Tooltip
+} from '@mui/material';
+import {
+  ArrowBack,
+  Flight,
+  FilterList,
+  Schedule,
+  AttachMoney,
+  FlightTakeoff,
+  FlightLand,
+  AccessTime,
+  Stop,
+  Star,
+  ExpandMore,
+  ExpandLess,
+  ClearAll // Add this import for clear icon
+} from '@mui/icons-material';
 import { useFlightContext } from '../../context/FlightContext';
-import { Plane, Clock, Filter, AlertCircle, ArrowLeft } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+
 
 const FlightResultsDisplay = () => {
-    const navigate = useNavigate();
-  const { 
-    flights, 
-    loading, 
-    error, 
-    searchParams, 
+  const navigate = useNavigate(); // Add this hook
+  const {
+    flights,
+    loading,
+    error,
+    searchParams,
     clearSearch,
-    searchPerformed 
+    searchPerformed,
   } = useFlightContext();
 
   const [sortBy, setSortBy] = useState('price');
   const [filterOpen, setFilterOpen] = useState(false);
   const [priceRange, setPriceRange] = useState([0, 50000]);
 
-  // Calculate min and max prices from available flights
-  const { minPrice, maxPrice } = useMemo(() => {
-    if (!flights || flights.length === 0) {
-      return { minPrice: 0, maxPrice: 50000 };
+  // Helper function to safely format dates
+  const formatTime = (dateString) => {
+    if (!dateString) return 'N/A';
+    try {
+      const date = new Date(dateString);
+      if (isNaN(date.getTime())) return 'N/A';
+      return date.toLocaleTimeString('en-US', {
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: false
+      });
+    } catch (e) {
+      return 'N/A';
     }
+  };
 
-    const prices = flights
-      .map(flight => flight.price?.amount || 0)
-      .filter(price => price > 0);
+  // Helper function to format duration
+  const formatDuration = (minutes) => {
+    if (!minutes || minutes === 0) return 'N/A';
+    const hours = Math.floor(minutes / 60);
+    const mins = minutes % 60;
+    return hours > 0 ? `${hours}h ${mins}m` : `${mins}m`;
+  };
 
-    if (prices.length === 0) {
-      return { minPrice: 0, maxPrice: 50000 };
-    }
+  // Helper function to get airport info safely
+  const getAirportInfo = (segment, type) => {
+    if (!segment) return { iata: 'N/A', city: 'N/A', name: 'N/A' };
+
+    const location = type === 'origin' ? segment.origin : segment.destination;
+    if (!location) return { iata: 'N/A', city: 'N/A', name: 'N/A' };
 
     return {
-      minPrice: Math.min(...prices),
-      maxPrice: Math.max(...prices)
+      iata: location.displayCode || location.flightPlaceId || 'N/A',
+      city: location.parent?.name || location.name || 'N/A',
+      name: location.name || 'N/A'
     };
+  };
+
+  // Transform flight data to match component expectations
+  const transformedFlights = useMemo(() => {
+    return flights.map(flight => {
+      // Handle the case where flight might have segments array or direct properties
+      const firstSegment = flight.segments?.[0] || flight;
+      const lastSegment = flight.segments?.[flight.segments.length - 1] || flight;
+
+      const origin = getAirportInfo(firstSegment, 'origin');
+      const destination = getAirportInfo(lastSegment, 'destination');
+
+      return {
+        id: flight.id,
+        airline: flight.airline || flight.carrierName || 'Unknown Airline',
+        price: {
+          amount: flight.price?.amount || 0,
+          formatted: flight.price?.amount ? `₹${Math.round(flight.price.amount).toLocaleString()}` : 'N/A'
+        },
+        outbound: {
+          flightNumber: flight.flightNumber || firstSegment?.flightNumber || 'N/A',
+          from: {
+            iata: origin.iata,
+            city: origin.city,
+            name: origin.name
+          },
+          to: {
+            iata: destination.iata,
+            city: destination.city,
+            name: destination.name
+          },
+          departure: flight.departure?.time || firstSegment?.departure || null,
+          arrival: flight.arrival?.time || lastSegment?.arrival || null,
+          durationInMinutes: flight.durationInMinutes || 0,
+          stops: flight.stops ?? 0
+        },
+        // Add additional fields for booking page
+        rating: 4.2, // You can make this dynamic based on your data
+        duration: flight.durationInMinutes || 0,
+        origin: origin.iata,
+        destination: destination.iata,
+        departure: flight.departure?.time || firstSegment?.departure || null,
+        arrival: flight.arrival?.time || lastSegment?.arrival || null,
+        stops: flight.stops ?? 0
+      };
+    });
   }, [flights]);
 
-  // Update price range when flights change
+  const { minPrice, maxPrice } = useMemo(() => {
+    const prices = transformedFlights
+      .map((f) => f.price?.amount || 0)
+      .filter((p) => p > 0);
+    return {
+      minPrice: prices.length ? Math.min(...prices) : 0,
+      maxPrice: prices.length ? Math.max(...prices) : 50000,
+    };
+  }, [transformedFlights]);
+
   useEffect(() => {
-    if (flights && flights.length > 0 && maxPrice > 0) {
+    if (transformedFlights.length) {
       setPriceRange([minPrice, maxPrice]);
     }
-  }, [flights, minPrice, maxPrice]);
+  }, [minPrice, maxPrice, transformedFlights]);
 
-  // Don't render if no search has been performed
-  if (!searchPerformed) {
-    return null;
-  }
+  if (!searchPerformed) return null;
 
-  // Sort flights
-  const sortedFlights = [...flights].sort((a, b) => {
+  const sortedFlights = [...transformedFlights].sort((a, b) => {
     switch (sortBy) {
       case 'price':
         return (a.price?.amount || 0) - (b.price?.amount || 0);
       case 'duration':
-        return (a.durationInMinutes || 0) - (b.durationInMinutes || 0);
+        return (a.outbound?.durationInMinutes || 0) - (b.outbound?.durationInMinutes || 0);
       case 'departure':
-        return (a.departure?.time || '').localeCompare(b.departure?.time || '');
+        const dateA = new Date(a.outbound?.departure || 0);
+        const dateB = new Date(b.outbound?.departure || 0);
+        return dateA - dateB;
       default:
         return 0;
     }
   });
 
-  // Filter by price
-  const filteredFlights = sortedFlights.filter(flight => {
+  const filteredFlights = sortedFlights.filter((flight) => {
     const price = flight.price?.amount || 0;
     return price >= priceRange[0] && price <= priceRange[1];
   });
 
-  const handleMinPriceChange = (e) => {
-    const value = parseInt(e.target.value);
-    setPriceRange([value, priceRange[1]]);
+  const handleBack = () => {
+    clearSearch();
+    // navigate('/'); // Uncomment if using React Router
   };
 
-  const handleMaxPriceChange = (e) => {
-    const value = parseInt(e.target.value);
-    setPriceRange([priceRange[0], value]);
+  const handlePriceChange = (event, newValue) => {
+    setPriceRange(newValue);
+  };
+
+  // Add clear filters function
+  const handleClearFilters = () => {
+    setPriceRange([minPrice, maxPrice]);
+    setSortBy('price');
+  };
+
+  // Add select flight function
+  const handleSelectFlight = (flight) => {
+    navigate('/booking', {
+      state: {
+        flight: {
+          ...flight,
+          price: flight.price?.amount || 0
+        },
+        searchParams
+      }
+    });
   };
 
   return (
-    <div className="max-w-6xl mx-auto p-6 bg-gray-50 min-h-screen">
-      {/* Header with Back Button */}
-      <div className="mb-8">
-    <button
-  onClick={() => {
-    clearSearch();
-    navigate('/');
-  }}
-  className="flex items-center gap-2 text-blue-600 hover:text-blue-700 mb-4"
->
-  <ArrowLeft className="h-4 w-4" />
-  Back to Search
-</button>
+    <Container maxWidth="lg" sx={{ py: 3 }}>
+      {/* Header */}
+      <Box sx={{ mb: 4 }}>
+        <Button
+          startIcon={<ArrowBack />}
+          onClick={handleBack}
+          sx={{ mb: 2 }}
+          variant="text"
+          color="primary"
+        >
+          Back to Search
+        </Button>
 
-        
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Flight Results</h1>
-        <p className="text-gray-600">
-          {searchParams.from?.name || searchParams.from} → {searchParams.to?.name || searchParams.to}
-          {searchParams.departureDate && ` • ${new Date(searchParams.departureDate).toLocaleDateString()}`}
-        </p>
-      </div>
+        <Typography variant="h3" component="h1" gutterBottom sx={{ fontWeight: 'bold' }}>
+          Flight Results
+        </Typography>
+        <Typography variant="h6" color="text.secondary">
+          {searchParams?.from?.name || searchParams?.from || 'Paris'} → {searchParams?.to?.name || searchParams?.to || 'London'}
+          {searchParams?.departureDate && ` • ${new Date(searchParams.departureDate).toLocaleDateString()}`}
+        </Typography>
+      </Box>
 
       {/* Controls */}
-      <div className="bg-white rounded-lg shadow-sm p-6 mb-6">
-        <div className="flex flex-col sm:flex-row gap-4 items-center justify-between">
-          <div className="flex items-center gap-4">
-            <select
-              value={sortBy}
-              onChange={(e) => setSortBy(e.target.value)}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="price">Sort by Price</option>
-              <option value="duration">Sort by Duration</option>
-              <option value="departure">Sort by Departure</option>
-            </select>
-
-            <button
-              onClick={() => setFilterOpen(!filterOpen)}
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
-            >
-              <Filter className="h-4 w-4" />
-              Filters
-            </button>
-          </div>
-
-          <div className="text-sm text-gray-600">
-            {filteredFlights.length} of {flights.length} flight(s) found
-          </div>
-        </div>
-
-        {/* Price Filter */}
-        {filterOpen && (
-          <div className="mt-6 p-4 bg-gray-50 rounded-lg">
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-4">
-                Price Range (₹)
-              </label>
-              
-              {/* Min Price Slider */}
-              <div className="mb-4">
-                <label className="block text-xs text-gray-500 mb-1">
-                  Minimum Price: ₹{priceRange[0].toLocaleString()}
-                </label>
-                <input
-                  type="range"
-                  min={minPrice}
-                  max={maxPrice}
-                  step="500"
-                  value={priceRange[0]}
-                  onChange={handleMinPriceChange}
-                  className="w-full"
-                />
-              </div>
-              
-              {/* Max Price Slider */}
-              <div className="mb-4">
-                <label className="block text-xs text-gray-500 mb-1">
-                  Maximum Price: ₹{priceRange[1].toLocaleString()}
-                </label>
-                <input
-                  type="range"
-                  min={minPrice}
-                  max={maxPrice}
-                  step="500"
-                  value={priceRange[1]}
-                  onChange={handleMaxPriceChange}
-                  className="w-full"
-                />
-              </div>
-              
-              <div className="flex justify-between text-xs text-gray-500 mt-2">
-                <span>Available: ₹{minPrice.toLocaleString()}</span>
-                <span>₹{maxPrice.toLocaleString()}</span>
-              </div>
-
-              {/* Reset Filter Button */}
-              <button
-                onClick={() => setPriceRange([minPrice, maxPrice])}
-                className="mt-3 px-3 py-1 text-xs bg-blue-100 text-blue-600 rounded hover:bg-blue-200"
+      <Paper elevation={1} sx={{ p: 3, mb: 3 }}>
+        <Grid container spacing={2} alignItems="center">
+          <Grid item xs={12} sm={6} md={3}>
+            <FormControl fullWidth size="small">
+              <InputLabel>Sort by</InputLabel>
+              <Select
+                value={sortBy}
+                label="Sort by"
+                onChange={(e) => setSortBy(e.target.value)}
               >
-                Reset Filter
-              </button>
-            </div>
-          </div>
-        )}
-      </div>
+                <MenuItem value="price">Price</MenuItem>
+                <MenuItem value="duration">Duration</MenuItem>
+                <MenuItem value="departure">Departure Time</MenuItem>
+              </Select>
+            </FormControl>
+          </Grid>
 
-      {/* Loading State */}
+          <Grid item xs={12} sm={6} md={3}>
+            <Button
+              startIcon={<FilterList />}
+              onClick={() => setFilterOpen(!filterOpen)}
+              variant="outlined"
+              endIcon={filterOpen ? <ExpandLess /> : <ExpandMore />}
+            >
+              Filters
+            </Button>
+          </Grid>
+
+          <Grid item xs={12} sm={6} md={3}>
+            <Button
+              startIcon={<ClearAll />}
+              onClick={handleClearFilters}
+              variant="outlined"
+              color="secondary"
+            >
+              Clear Filters
+            </Button>
+          </Grid>
+
+          <Grid item xs={12} md={3}>
+            <Typography variant="body2" color="text.secondary" textAlign={{ xs: 'left', md: 'right' }}>
+              {filteredFlights.length} of {transformedFlights.length} flight(s) found
+            </Typography>
+          </Grid>
+        </Grid>
+
+        <Collapse in={filterOpen}>
+          <Box sx={{ mt: 3, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+            <Typography gutterBottom>
+              Price Range: ₹{priceRange[0].toLocaleString()} - ₹{priceRange[1].toLocaleString()}
+            </Typography>
+            <Slider
+              value={priceRange}
+              onChange={handlePriceChange}
+              valueLabelDisplay="auto"
+              min={minPrice}
+              max={maxPrice}
+              step={500}
+              valueLabelFormat={(value) => `₹${value.toLocaleString()}`}
+            />
+          </Box>
+        </Collapse>
+      </Paper>
+
+      {/* Loading */}
       {loading && (
-        <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Searching for flights...</p>
-        </div>
+        <Box textAlign="center" py={8}>
+          <CircularProgress size={48} />
+          <Typography variant="h6" sx={{ mt: 2 }} color="text.secondary">
+            Searching for flights...
+          </Typography>
+        </Box>
       )}
 
-      {/* Error State */}
+      {/* Error */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-          <div className="flex items-center">
-            <AlertCircle className="h-5 w-5 text-red-600 mr-2" />
-            <span className="text-red-700">{error}</span>
-          </div>
-        </div>
+        <Alert severity="error" sx={{ mb: 3 }}>
+          {error}
+        </Alert>
       )}
 
       {/* No Results */}
-      {!loading && !error && flights.length === 0 && (
-        <div className="text-center py-12">
-          <Plane className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No flights found</h3>
-          <p className="text-gray-500">Try adjusting your search criteria</p>
-        </div>
+      {!loading && !error && filteredFlights.length === 0 && (
+        <Paper sx={{ p: 8, textAlign: 'center' }}>
+          <Flight sx={{ fontSize: 64, color: 'grey.400', mb: 2 }} />
+          <Typography variant="h6" color="text.secondary">
+            No flights match your filters
+          </Typography>
+          <Button
+            onClick={handleClearFilters}
+            variant="outlined"
+            sx={{ mt: 2 }}
+            startIcon={<ClearAll />}
+          >
+            Clear Filters to Show All Flights
+          </Button>
+        </Paper>
       )}
 
       {/* Flight Results */}
-      <div className="space-y-4">
-        {filteredFlights.map((flight, index) => (
-          <div key={flight.id || index} className="bg-white rounded-lg shadow-sm border p-6 hover:shadow-md transition-shadow">
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 items-center">
-              {/* Airline */}
-              <div className="flex items-center space-x-3">
-                <div className="w-12 h-12 bg-blue-100 rounded-lg flex items-center justify-center">
-                  <Plane className="h-6 w-6 text-blue-600" />
-                </div>
-                <div>
-                  <div className="text-sm text-gray-600">
-                    {flight.airline || 'Unknown Airline'}
-                  </div>
-                  <div className="font-semibold">
-                    {flight.carrierCode} {flight.flightNumber}
-                  </div>
-                </div>
-              </div>
+      <Stack spacing={2}>
+        {filteredFlights.map((flight, index) => {
+          const outbound = flight.outbound;
+          return (
+            <Card key={flight.id || index} elevation={2} sx={{
+              transition: 'all 0.2s ease-in-out',
+              '&:hover': {
+                elevation: 4,
+                transform: 'translateY(-2px)'
+              }
+            }}>
+              <CardContent sx={{ p: 3 }}>
+                <Grid container spacing={3} alignItems="center">
+                  {/* Flight Info */}
+                  <Grid item xs={12} md={8}>
+                    <Stack spacing={2}>
+                      {/* Airline & Flight Number */}
+                      <Box display="flex" alignItems="center" gap={1}>
+                        <Avatar sx={{ bgcolor: 'primary.main', width: 32, height: 32 }}>
+                          <Flight fontSize="small" />
+                        </Avatar>
+                        <Typography variant="h6" color="primary.main" fontWeight="bold">
+                          {flight.airline}
+                        </Typography>
+                        <Chip label={outbound?.flightNumber || 'N/A'} size="small" variant="outlined" />
+                      </Box>
 
-              {/* Departure */}
-              <div>
-                <div className="text-xl font-bold">
-                  {flight.departure?.time || 'N/A'}
-                </div>
-                <div className="text-sm text-gray-600">
-                  {flight.departure?.airport || 'N/A'}
-                </div>
-                <div className="text-xs text-gray-500">
-                  {flight.departure?.city || 'N/A'}
-                </div>
-              </div>
+                      {/* Route */}
+                      <Box display="flex" alignItems="center" gap={2} flexWrap="wrap">
+                        <Box textAlign="center">
+                          <Typography variant="h5" fontWeight="bold">
+                            {formatTime(outbound?.departure)}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {outbound?.from?.iata || 'N/A'}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {outbound?.from?.city || 'N/A'}
+                          </Typography>
+                        </Box>
 
-              {/* Duration */}
-              <div className="text-center">
-                <div className="text-sm text-gray-600 mb-1">
-                  {flight.duration || 'N/A'}
-                </div>
-                <div className="flex items-center justify-center space-x-2 mb-1">
-                  <div className="h-0.5 w-8 bg-gray-300"></div>
-                  <Plane className="h-4 w-4 text-blue-600" />
-                  <div className="h-0.5 w-8 bg-gray-300"></div>
-                </div>
-                <div className="text-xs text-gray-500">
-                  {flight.stops === 0 ? 'Non-stop' : `${flight.stops} stop(s)`}
-                </div>
-              </div>
+                        <Box sx={{ flex: 1, textAlign: 'center', minWidth: 120 }}>
+                          <Typography variant="body2" color="text.secondary">
+                            {formatDuration(outbound?.durationInMinutes)}
+                          </Typography>
+                          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', my: 1 }}>
+                            <FlightTakeoff fontSize="small" color="action" />
+                            <Box sx={{ height: 2, bgcolor: 'grey.300', flex: 1, mx: 1 }} />
+                            <FlightLand fontSize="small" color="action" />
+                          </Box>
+                          <Typography variant="caption" color="text.secondary">
+                            {outbound?.stops === 0 ? 'Non-stop' : `${outbound?.stops} stop(s)`}
+                          </Typography>
+                        </Box>
 
-              {/* Arrival */}
-              <div>
-                <div className="text-xl font-bold">
-                  {flight.arrival?.time || 'N/A'}
-                </div>
-                <div className="text-sm text-gray-600">
-                  {flight.arrival?.airport || 'N/A'}
-                </div>
-                <div className="text-xs text-gray-500">
-                  {flight.arrival?.city || 'N/A'}
-                </div>
-              </div>
+                        <Box textAlign="center">
+                          <Typography variant="h5" fontWeight="bold">
+                            {formatTime(outbound?.arrival)}
+                          </Typography>
+                          <Typography variant="body2" color="text.secondary">
+                            {outbound?.to?.iata || 'N/A'}
+                          </Typography>
+                          <Typography variant="caption" color="text.secondary">
+                            {outbound?.to?.city || 'N/A'}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Stack>
+                  </Grid>
 
-              {/* Price & Book */}
-              <div className="text-center lg:text-right">
-                <div className="text-2xl font-bold text-green-600 mb-1">
-                  ₹{flight.price?.amount?.toLocaleString() || 'N/A'}
-                </div>
-                <div className="text-xs text-gray-500 mb-3">per person</div>
-                <button className="w-full lg:w-auto px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors">
-                  Select Flight
-                </button>
-              </div>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* No Results After Filtering */}
-      {!loading && filteredFlights.length === 0 && flights.length > 0 && (
-        <div className="text-center py-12">
-          <Filter className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No flights match your filters</h3>
-          <p className="text-gray-500">Try adjusting your price range or other filters</p>
-          <button
-            onClick={() => setPriceRange([minPrice, maxPrice])}
-            className="mt-4 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
-          >
-            Clear Filters
-          </button>
-        </div>
-      )}
-    </div>
+                  {/* Price & Select */}
+                  <Grid item xs={12} md={4}>
+                    <Box textAlign={{ xs: 'left', md: 'right' }}>
+                      <Typography variant="h4" color="success.main" fontWeight="bold">
+                        {flight.price?.formatted || 'N/A'}
+                      </Typography>
+                      <Typography variant="body2" color="text.secondary" gutterBottom>
+                        per person
+                      </Typography>
+                      <Button
+                        variant="contained"
+                        size="large"
+                        fullWidth={{ xs: true, md: false }}
+                        sx={{ minWidth: 140 }}
+                        onClick={() => handleSelectFlight(flight)}
+                      >
+                        Select Flight
+                      </Button>
+                    </Box>
+                  </Grid>
+                </Grid>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </Stack>
+    </Container>
   );
 };
 

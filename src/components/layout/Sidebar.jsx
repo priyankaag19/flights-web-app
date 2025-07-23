@@ -121,7 +121,7 @@ const Sidebar = ({ open, onClose, variant = 'temporary' }) => {
 
   const handleItemClick = (item) => {
     if (item.disabled) return;
-    
+
     if (item.children) {
       setExpandedSections(prev => ({
         ...prev,
@@ -181,7 +181,7 @@ const Sidebar = ({ open, onClose, variant = 'temporary' }) => {
             >
               {item.icon}
             </ListItemIcon>
-            <ListItemText 
+            <ListItemText
               primary={item.label}
               primaryTypographyProps={{
                 fontSize: '0.875rem',
@@ -193,7 +193,7 @@ const Sidebar = ({ open, onClose, variant = 'temporary' }) => {
             )}
           </ListItemButton>
         </ListItem>
-        
+
         {item.children && (
           <Collapse in={isExpanded} timeout="auto" unmountOnExit>
             <List component="div" disablePadding>
@@ -209,11 +209,11 @@ const Sidebar = ({ open, onClose, variant = 'temporary' }) => {
     <Box sx={{ height: '100%', display: 'flex', flexDirection: 'column' }}>
       {/* Header */}
       <Box sx={{ p: 2, display: 'flex', alignItems: 'center', gap: 1 }}>
-        <FlightTakeoff 
-          sx={{ 
-            color: theme.palette.primary.main, 
-            fontSize: 32 
-          }} 
+        <FlightTakeoff
+          sx={{
+            color: theme.palette.primary.main,
+            fontSize: 32
+          }}
         />
         <Typography
           variant="h6"
