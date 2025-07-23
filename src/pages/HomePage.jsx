@@ -98,7 +98,7 @@ const travelTips = [
   {
     id: 1,
     title: 'Book 2-8 weeks ahead',
-    description: 'For domestic flights, book 2-3 weeks ahead. For international, 6-8 weeks.',
+    description: 'domestic flights....,2-3 weeks ahead.international, 6-8 weeks.',
     icon: <CalendarToday />,
   },
   {
@@ -116,7 +116,7 @@ const travelTips = [
   {
     id: 4,
     title: 'Check baggage policies',
-    description: 'Review airline baggage policies before booking to avoid surprises.',
+    description: 'Review airline baggage policies before book to avoid risk.',
     icon: <Group />,
   },
 ];
@@ -220,86 +220,92 @@ const HomePage = () => {
   );
 
   return (
-    <Box sx={{ minHeight: '100vh', backgroundColor: 'background.default' }}>
-  {/* Hero Section */}
-<Box
-  sx={{
-    background: `linear-gradient(135deg, ${theme.palette.primary.main}15 0%, ${theme.palette.secondary.main}15 100%)`,
-    py: { xs: 4, md: 6 },
-    mb: 4,
-    display: 'flex',
-    justifyContent: 'center',
-    alignItems: 'center',
-  }}
->
-  <Container
-    maxWidth="lg"
-    sx={{
-      display: 'flex',
-      flexDirection: 'column',
-      alignItems: 'center',
-    }}
-  >
-    {/* Title Section - Centered */}
-    <Box
-      sx={{
-        maxWidth: 800,
-        width: '100%',
-        textAlign: 'center',
-        mb: 4,
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        justifyContent: 'center',
-      }}
-    >
-      <Typography
-        variant={isMobile ? 'h4' : 'h3'}
+    <Box sx={{
+      minHeight: '100vh', backgroundColor: 'background.default', overflowX: 'hidden', // Prevents horizontal scroll
+      width: '100%',
+      maxWidth: '100vw',
+    }}>
+      {/* Hero Section */}
+      <Box
         sx={{
-          fontWeight: 700,
-          color: theme.palette.text.primary,
-          mb: 2,
-        }}
-      >
-        Find Your Perfect Flight
-      </Typography>
-      <Typography
-        variant="h6"
-        sx={{
-          color: theme.palette.text.secondary,
-          fontWeight: 400,
-          maxWidth: 600,
-          mx: 'auto',
-        }}
-      >
-        Compare prices from hundreds of airlines and travel agencies
-      </Typography>
-    </Box>
-
-    {/* Search Form - Centered */}
-    <Box
-      sx={{
-        width: '100%',
-        maxWidth: 1200, // Set max width for the search form
-        display: 'flex',
-        justifyContent: 'center',
-      }}
-    >
-      <Paper
-        elevation={3}
-        sx={{
-          p: 3,
-          borderRadius: 3,
-          backgroundColor: 'background.paper',
-          boxShadow: theme.shadows[10],
+          background: `linear-gradient(135deg, ${theme.palette.primary.main}15 0%, ${theme.palette.secondary.main}15 100%)`,
+          py: { xs: 4, md: 6 },
+          mb: 4,
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
           width: '100%',
+          maxWidth: '100vw',
         }}
       >
-        <FlightSearchForm onSearch={searchFlights} loading={loading} />
-      </Paper>
-    </Box>
-  </Container>
-</Box>
+        <Container
+          maxWidth="lg"
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          {/* Title Section - Centered */}
+          <Box
+            sx={{
+              maxWidth: 800,
+              width: '100%',
+              textAlign: 'center',
+              mb: 4,
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Typography
+              variant={isMobile ? 'h4' : 'h3'}
+              sx={{
+                fontWeight: 700,
+                color: theme.palette.text.primary,
+                mb: 2,
+              }}
+            >
+              Find Your Perfect Flight
+            </Typography>
+            <Typography
+              variant="h6"
+              sx={{
+                color: theme.palette.text.secondary,
+                fontWeight: 400,
+                maxWidth: 600,
+                mx: 'auto',
+              }}
+            >
+              Compare prices from hundreds of airlines and travel agencies
+            </Typography>
+          </Box>
+
+          {/* Search Form - Centered */}
+          <Box
+            sx={{
+              width: '100%',
+              maxWidth: 1200,
+              display: 'flex',
+              justifyContent: 'center',
+            }}
+          >
+            <Paper
+              elevation={3}
+              sx={{
+                p: 3,
+                borderRadius: 3,
+                backgroundColor: 'background.paper',
+                boxShadow: theme.shadows[10],
+                width: '100%',
+              }}
+            >
+              <FlightSearchForm onSearch={searchFlights} loading={loading} />
+            </Paper>
+          </Box>
+        </Container>
+      </Box>
 
       <Container maxWidth="lg" sx={{ py: 2 }}>
         {/* Popular Destinations Section */}
@@ -335,7 +341,6 @@ const HomePage = () => {
             }
           </Grid>
         </Box>
-
         {/* Travel Tips Section */}
         <Box sx={{ mb: 6 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', mb: 3, gap: 2 }}>
@@ -358,36 +363,88 @@ const HomePage = () => {
             </Box>
           </Box>
 
-          <Grid container spacing={3}>
+          <Grid container spacing={3} sx={{ alignItems: 'stretch' }}>
             {travelTips.map((tip) => (
-              <Grid item xs={12} sm={6} md={3} key={tip.id}>
+              <Grid
+                item
+                xs={12}
+                sm={6}
+                md={3}
+                key={tip.id}
+                sx={{
+                  display: 'flex',
+                  minWidth: 0,
+                }}
+              >
                 <Paper
                   sx={{
-                    p: 3,
-                    height: '100%',
+                    p: 2.5,
+                    width: '100%',
+                    height: 200,
+                    maxWidth: '100%',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    justifyContent: 'space-between',
                     textAlign: 'center',
                     transition: 'all 0.3s ease',
+                    borderRadius: 2,
+                    overflow: 'hidden',
+                    boxSizing: 'border-box',
                     '&:hover': {
                       boxShadow: theme.shadows[6],
+                      transform: 'translateY(-2px)',
                     },
                   }}
                 >
-                  <Avatar
+                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', flex: 0 }}>
+                    <Avatar
+                      sx={{
+                        backgroundColor: theme.palette.primary.light,
+                        color: theme.palette.primary.main,
+                        width: 48,
+                        height: 48,
+                        mb: 1.5,
+                        flexShrink: 0,
+                      }}
+                    >
+                      {tip.icon}
+                    </Avatar>
+                    <Typography
+                      variant="subtitle1"
+                      sx={{
+                        fontWeight: 600,
+                        mb: 1,
+                        height: '2.8em',
+                        display: 'flex',
+                        alignItems: 'center',
+                        justifyContent: 'center',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        fontSize: '1rem',
+                        lineHeight: 1.2,
+                      }}
+                    >
+                      {tip.title}
+                    </Typography>
+                  </Box>
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
                     sx={{
-                      backgroundColor: theme.palette.primary.light,
-                      color: theme.palette.primary.main,
-                      width: 56,
-                      height: 56,
-                      mx: 'auto',
-                      mb: 2,
+                      flex: 1,
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'center',
+                      lineHeight: 1.3,
+                      overflow: 'hidden',
+                      textAlign: 'center',
+                      fontSize: '0.875rem',
+                      px: 0.5,
+                      hyphens: 'auto',
+                      wordBreak: 'break-word',
                     }}
                   >
-                    {tip.icon}
-                  </Avatar>
-                  <Typography variant="h6" sx={{ fontWeight: 600, mb: 1 }}>
-                    {tip.title}
-                  </Typography>
-                  <Typography variant="body2" color="text.secondary">
                     {tip.description}
                   </Typography>
                 </Paper>
