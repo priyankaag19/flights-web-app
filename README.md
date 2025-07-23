@@ -26,7 +26,7 @@ src/
 │   └── layout/         # Layout wrappers
 ├── context/            # Flight context (global state)
 ├── hooks/              # Custom React hooks (useFlights, useAirports)
-├── pages/              # Route-level pages (Home, Booking, Trips)
+├── pages/              # Route-level pages (Home, Booking, Trips, Explore, Profile, SearchResults, Settings )
 ├── services/           # API wrapper services (FlightService)
 ├── theme/              # MUI theme setup
 ├── App.jsx             # Main app routing and layout
@@ -40,7 +40,7 @@ src/
 1. **Clone the repository**
 
    ```bash
-   git clone https://github.com/your-username/google-flights-clone.git
+   git clone https://github.com/priyankaag19/google-flights-clone.git
    cd google-flights-clone
    ```
 
@@ -90,7 +90,7 @@ GET /flights/detail	📄 (Optional) Retrieves detailed info for a selected fligh
 
 ---
 
-## 🧪 Development
+## 🧪 Development 
 
 * ✅ All state and data flow is managed through `FlightContext`
 * ✨ Use `useFlights.js` for searching and transforming API responses
