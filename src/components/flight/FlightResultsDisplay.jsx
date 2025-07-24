@@ -130,7 +130,7 @@ const FlightResultsDisplay = () => {
           stops: flight.stops ?? 0
         },
         // Add additional fields for booking page
-        rating: 4.2, // You can make this dynamic based on your data
+        rating: 4.2,
         duration: flight.durationInMinutes || 0,
         origin: origin.iata,
         destination: destination.iata,
