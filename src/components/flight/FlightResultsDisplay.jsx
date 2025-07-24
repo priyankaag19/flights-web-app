@@ -328,16 +328,8 @@ const FlightResultsDisplay = () => {
         <Paper sx={{ p: 8, textAlign: 'center' }}>
           <Flight sx={{ fontSize: 64, color: 'grey.400', mb: 2 }} />
           <Typography variant="h6" color="text.secondary">
-            No flights match your filters
+            No flights match your requirement at the moment
           </Typography>
-          <Button
-            onClick={handleClearFilters}
-            variant="outlined"
-            sx={{ mt: 2 }}
-            startIcon={<ClearAll />}
-          >
-            Clear Filters to Show All Flights
-          </Button>
         </Paper>
       )}
 
