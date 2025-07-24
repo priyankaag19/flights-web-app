@@ -66,7 +66,7 @@ const FlightList = ({
   const [currentPage, setCurrentPage] = useState(1);
   const [favorites, setFavorites] = useState(new Set());
 
-  const itemsPerPage = 10;
+  const itemsPerPage = 20;
 
   // Sort flights
   const sortedFlights = useMemo(() => {

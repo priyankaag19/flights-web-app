@@ -26,7 +26,7 @@ src/
 │   └── layout/         # Layout wrappers
 ├── context/            # Flight context (global state)
 ├── hooks/              # Custom React hooks (useFlights, useAirports)
-├── pages/              # Route-level pages (Home, Booking, Trips, Explore, Profile, SearchResults, Settings )
+├── pages/              # Route-level pages (Home, Booking, Trips, Explore, Profile,Settings )
 ├── services/           # API wrapper services (FlightService)
 ├── theme/              # MUI theme setup
 ├── App.jsx             # Main app routing and layout

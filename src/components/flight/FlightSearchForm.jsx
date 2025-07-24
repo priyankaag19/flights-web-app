@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   Paper,
@@ -19,6 +19,7 @@ import {
   Chip,
   Card,
   CardContent,
+  CircularProgress,
 } from '@mui/material';
 import {
   SwapHoriz,
@@ -66,14 +67,28 @@ const FlightSearchForm = ({ onSearch, loading: externalLoading, initialValues = 
   const {
     airports,
     loading: airportsLoading,
+    error: airportsError,
     searchAirports,
     selectedOrigin,
     selectedDestination,
     setSelectedOrigin,
     setSelectedDestination,
     swapAirports,
-    popularAirports
+    popularAirports,
+    resetAirports
   } = useAirports();
+
+  // Use refs to track the source of the search
+  const fromSearchRef = useRef(false);
+  const toSearchRef = useRef(false);
+
+  // Separate state for FROM and TO input values and their respective options
+  const [fromInputValue, setFromInputValue] = useState('');
+  const [toInputValue, setToInputValue] = useState('');
+  const [fromOptions, setFromOptions] = useState([]);
+  const [toOptions, setToOptions] = useState([]);
+  const [fromLoading, setFromLoading] = useState(false);
+  const [toLoading, setToLoading] = useState(false);
 
   // Form state
   const [tripType, setTripType] = useState(initialValues.tripType || 'roundtrip');
@@ -95,11 +110,112 @@ const FlightSearchForm = ({ onSearch, loading: externalLoading, initialValues = 
   const [cabinClass, setCabinClass] = useState(initialValues.cabinClass || 'economy');
   const [showPassengerSelector, setShowPassengerSelector] = useState(false);
 
-  const [fromInputValue, setFromInputValue] = useState('');
-  const [toInputValue, setToInputValue] = useState('');
-
   // Use external loading or context loading
   const isLoading = externalLoading || contextLoading;
+
+  // Separate search functions for FROM and TO
+  const searchFromAirports = useCallback(async (query) => {
+    if (!query || query.length < 2) {
+      setFromOptions([]);
+      return;
+    }
+
+    setFromLoading(true);
+    fromSearchRef.current = true;
+
+    try {
+      // Import AirportService directly for immediate results
+      const { AirportService } = await import('../../services/airportService');
+      const results = await AirportService.searchAirports(query);
+            
+      // Always update the options if we're still the active search
+      if (fromSearchRef.current) {
+        const options = Array.isArray(results) ? results : [];
+        setFromOptions(options);
+      }
+    } catch (error) {
+      console.error('FROM airport search error:', error);
+      if (fromSearchRef.current) {
+        setFromOptions([]);
+      }
+    } finally {
+      if (fromSearchRef.current) {
+        setFromLoading(false);
+      }
+      fromSearchRef.current = false;
+    }
+  }, []);
+
+  const searchToAirports = useCallback(async (query) => {
+    if (!query || query.length < 2) {
+      setToOptions([]);
+      return;
+    }
+
+    setToLoading(true);
+    toSearchRef.current = true;
+
+    try {
+      // Import AirportService directly for immediate results
+      const { AirportService } = await import('../../services/airportService');
+      const results = await AirportService.searchAirports(query);
+      
+      // Always update the options if we're still the active search
+      if (toSearchRef.current) {
+        const options = Array.isArray(results) ? results : [];
+        setToOptions(options);
+      }
+    } catch (error) {
+      console.error('TO airport search error:', error);
+      if (toSearchRef.current) {
+        setToOptions([]);
+      }
+    } finally {
+      if (toSearchRef.current) {
+        setToLoading(false);
+      }
+      toSearchRef.current = false;
+    }
+  }, []);
+
+  // Debounced search for FROM airport
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (fromInputValue.length >= 2 && !selectedOrigin) {
+        searchFromAirports(fromInputValue);
+      } else if (fromInputValue.length < 2) {
+        setFromOptions([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [fromInputValue, searchFromAirports, selectedOrigin]);
+
+  // Debounced search for TO airport
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      if (toInputValue.length >= 2 && !selectedDestination) {
+        searchToAirports(toInputValue);
+      } else if (toInputValue.length < 2) {
+        setToOptions([]);
+      }
+    }, 300);
+
+    return () => clearTimeout(timer);
+  }, [toInputValue, searchToAirports, selectedDestination]);
+
+  // Update input values when selections change
+  useEffect(() => {
+    if (selectedOrigin && !fromInputValue) {
+      setFromInputValue(getAirportLabel(selectedOrigin));
+    }
+  }, [fromInputValue, selectedOrigin]);
+
+  useEffect(() => {
+    if (selectedDestination && !toInputValue) {
+      setToInputValue(getAirportLabel(selectedDestination));
+    }
+  }, [selectedDestination, toInputValue]);
 
   // Form submission handler
   const onSubmit = async (e) => {
@@ -144,27 +260,6 @@ const FlightSearchForm = ({ onSearch, loading: externalLoading, initialValues = 
     }
   };
 
-  // Debounced airport search
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (fromInputValue.length >= 2) {
-        searchAirports(fromInputValue);
-      }
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [fromInputValue, searchAirports]);
-
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      if (toInputValue.length >= 2) {
-        searchAirports(toInputValue);
-      }
-    }, 300);
-
-    return () => clearTimeout(timer);
-  }, [toInputValue, searchAirports]);
-
   const handleTripTypeChange = (event, newValue) => {
     setTripType(newValue);
     if (newValue === 'oneway') {
@@ -173,10 +268,26 @@ const FlightSearchForm = ({ onSearch, loading: externalLoading, initialValues = 
   };
 
   const handleSwapAirports = () => {
-    swapAirports();
-    const tempInput = fromInputValue;
-    setFromInputValue(toInputValue);
-    setToInputValue(tempInput);
+    // Swap the selected airports
+    const tempOrigin = selectedOrigin;
+    const tempDestination = selectedDestination;
+    
+    setSelectedOrigin(tempDestination);
+    setSelectedDestination(tempOrigin);
+
+    // Swap input values
+    const tempFromInput = fromInputValue;
+    const tempToInput = toInputValue;
+    
+    setFromInputValue(tempToInput);
+    setToInputValue(tempFromInput);
+    
+    // Swap options
+    const tempFromOptions = fromOptions;
+    const tempToOptions = toOptions;
+    
+    setFromOptions(tempToOptions);
+    setToOptions(tempFromOptions);
   };
 
   const handlePassengerChange = (type, increment) => {
@@ -224,22 +335,32 @@ const FlightSearchForm = ({ onSearch, loading: externalLoading, initialValues = 
     setCabinClass('economy');
     setFromInputValue('');
     setToInputValue('');
+    setFromOptions([]);
+    setToOptions([]);
+    resetAirports();
   };
 
   const isSearchDisabled = !selectedOrigin || !selectedDestination || !departureDate ||
     (tripType === 'roundtrip' && !returnDate) || isLoading;
 
-  // Custom renderOption function for airport autocomplete
+  // Enhanced renderOption function for airport autocomplete
   const renderAirportOption = (props, option) => {
     const { key, ...otherProps } = props;
+    
+    // Handle the airport data structure
+    const airportCode = option.skyId || option.iata || option.entityId || 'N/A';
+    const airportName = option.name || 'Unknown Airport';
+    const location = option.city || '';
+    const country = option.country || '';
+    
     return (
       <Box component="li" key={key} {...otherProps}>
         <Box>
           <Typography variant="body2" fontWeight={600}>
-            {option.name || option.presentation?.title} ({option.skyId || option.entityId})
+            {airportName} ({airportCode})
           </Typography>
           <Typography variant="caption" color="text.secondary">
-            {option.hierarchy || `${option.city}, ${option.country}`}
+            {location}{country && location !== country ? `, ${country}` : ''}
           </Typography>
         </Box>
       </Box>
@@ -247,16 +368,33 @@ const FlightSearchForm = ({ onSearch, loading: externalLoading, initialValues = 
   };
 
   const getAirportLabel = (option) => {
+    if (!option) return '';
     if (typeof option === 'string') return option;
-    return `${option.name || option.presentation?.title} (${option.skyId || option.entityId})`;
+    
+    const airportCode = option.skyId || option.iata || option.entityId || '';
+    const airportName = option.name || '';
+    
+    return airportName && airportCode ? `${airportName} (${airportCode})` : airportName || airportCode;
+  };
+
+  // Check if two airport options are equal
+  const isOptionEqualToValue = (option, value) => {
+    if (!option || !value) return false;
+    
+    return (
+      option.skyId === value.skyId ||
+      option.entityId === value.entityId ||
+      option.iata === value.iata ||
+      (option.name === value.name && option.city === value.city)
+    );
   };
 
   const handlePopularRouteClick = (route) => {
     if (route.from && route.to) {
       setSelectedOrigin(route.from);
-      setFromInputValue(route.from.name || '');
+      setFromInputValue(getAirportLabel(route.from));
       setSelectedDestination(route.to);
-      setToInputValue(route.to.name || '');
+      setToInputValue(getAirportLabel(route.to));
     }
   };
 
@@ -279,12 +417,31 @@ const FlightSearchForm = ({ onSearch, loading: externalLoading, initialValues = 
           <Grid item xs={12} md={3}>
             <Autocomplete
               value={selectedOrigin}
-              onChange={(event, newValue) => setSelectedOrigin(newValue)}
+              onChange={(event, newValue) => {
+                setSelectedOrigin(newValue);
+                if (newValue) {
+                  setFromInputValue(getAirportLabel(newValue));
+                  setFromOptions([]); // Clear options after selection
+                }
+              }}
               inputValue={fromInputValue}
-              onInputChange={(event, newInputValue) => setFromInputValue(newInputValue)}
-              options={airports}
-              loading={airportsLoading}
+              onInputChange={(event, newInputValue, reason) => {
+                // Only update input value if user is typing
+                if (reason === 'input') {
+                  setFromInputValue(newInputValue);
+                  // Clear selection if user is typing something different
+                  if (selectedOrigin && newInputValue !== getAirportLabel(selectedOrigin)) {
+                    setSelectedOrigin(null);
+                  }
+                } else if (reason === 'reset') {
+                  // When clearing or resetting
+                  setFromInputValue(newInputValue);
+                }
+              }}
+              options={fromOptions}
+              loading={fromLoading}
               getOptionLabel={getAirportLabel}
+              isOptionEqualToValue={isOptionEqualToValue}
               renderInput={(params) => (
                 <TextField
                   {...params}
@@ -295,11 +452,27 @@ const FlightSearchForm = ({ onSearch, loading: externalLoading, initialValues = 
                   InputProps={{
                     ...params.InputProps,
                     startAdornment: <FlightTakeoff sx={{ mr: 1, color: 'text.secondary' }} />,
+                    endAdornment: (
+                      <>
+                        {fromLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                        {params.InputProps.endAdornment}
+                      </>
+                    ),
                   }}
                 />
               )}
               renderOption={renderAirportOption}
-              noOptionsText={fromInputValue.length < 2 ? "Type at least 2 characters" : "No airports found"}
+              noOptionsText={
+                fromInputValue.length < 2 
+                  ? "Type at least 2 characters" 
+                  : fromLoading 
+                    ? "Searching..." 
+                    : "No airports found"
+              }
+              filterOptions={(options) => options} // Disable built-in filtering
+              freeSolo={false}
+              clearOnBlur={false}
+              clearOnEscape={true}
             />
           </Grid>
 
@@ -320,12 +493,31 @@ const FlightSearchForm = ({ onSearch, loading: externalLoading, initialValues = 
           <Grid item xs={12} md={3}>
             <Autocomplete
               value={selectedDestination}
-              onChange={(event, newValue) => setSelectedDestination(newValue)}
+              onChange={(event, newValue) => {
+                setSelectedDestination(newValue);
+                if (newValue) {
+                  setToInputValue(getAirportLabel(newValue));
+                  setToOptions([]); // Clear options after selection
+                }
+              }}
               inputValue={toInputValue}
-              onInputChange={(event, newInputValue) => setToInputValue(newInputValue)}
-              options={airports}
-              loading={airportsLoading}
+              onInputChange={(event, newInputValue, reason) => {
+                // Only update input value if user is typing
+                if (reason === 'input') {
+                  setToInputValue(newInputValue);
+                  // Clear selection if user is typing something different
+                  if (selectedDestination && newInputValue !== getAirportLabel(selectedDestination)) {
+                    setSelectedDestination(null);
+                  }
+                } else if (reason === 'reset') {
+                  // When clearing or resetting
+                  setToInputValue(newInputValue);
+                }
+              }}
+              options={toOptions}
+              loading={toLoading}
               getOptionLabel={getAirportLabel}
+              isOptionEqualToValue={isOptionEqualToValue}
               renderInput={(params) => (
                 <TextField
                   {...params}
@@ -336,11 +528,27 @@ const FlightSearchForm = ({ onSearch, loading: externalLoading, initialValues = 
                   InputProps={{
                     ...params.InputProps,
                     startAdornment: <FlightLand sx={{ mr: 1, color: 'text.secondary' }} />,
+                    endAdornment: (
+                      <>
+                        {toLoading ? <CircularProgress color="inherit" size={20} /> : null}
+                        {params.InputProps.endAdornment}
+                      </>
+                    ),
                   }}
                 />
               )}
               renderOption={renderAirportOption}
-              noOptionsText={toInputValue.length < 2 ? "Type at least 2 characters" : "No airports found"}
+              noOptionsText={
+                toInputValue.length < 2 
+                  ? "Type at least 2 characters" 
+                  : toLoading 
+                    ? "Searching..." 
+                    : "No airports found"
+              }
+              filterOptions={(options) => options} // Disable built-in filtering
+              freeSolo={false}
+              clearOnBlur={false}
+              clearOnEscape={true}
             />
           </Grid>
 

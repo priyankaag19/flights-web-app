@@ -9,19 +9,17 @@ export class AirportService {
 
       console.log('🔍 AirportService: Searching for:', query);
 
-      // Clean the query - remove any parentheses and extra info
       const cleanQuery = query.replace(/\s*\([^)]*\)/g, '').trim();
 
       const response = await api.get('/flights/auto-complete', {
         params: {
           query: cleanQuery,
-          limit: 10
+          limit: 20
         }
       });
 
       console.log('✅ AirportService: Raw response:', response.data);
 
-      // Handle different possible response structures
       let airportData = [];
 
       if (response.data?.data) {
@@ -34,32 +32,25 @@ export class AirportService {
         airportData = response.data.airports;
       }
 
-      // Ensure we have an array
       if (!Array.isArray(airportData)) {
         console.warn('⚠️ Airport data is not an array:', airportData);
         return [];
       }
 
-      // Transform and filter the data
       const transformedData = airportData
-        .filter(item => item && (item.iata || item.skyId || item.entityId))
-        .map(item => ({
-          entityId: item.entityId || item.skyId || item.iata,
-          skyId: item.skyId || item.entityId || item.iata,
-          iata: item.iata || item.skyId?.substring(0, 3),
-          name: item.name || item.displayName || item.presentation?.suggestionTitle,
-          city: item.city || item.cityName || item.presentation?.cityName,
-          country: item.country || item.countryName || item.presentation?.countryName,
-          type: item.type || 'AIRPORT',
-          coordinates: item.coordinates || {
-            lat: item.latitude || item.lat,
-            lng: item.longitude || item.lng || item.lon
-          }
-        }));
+        .filter(item => item && (
+          item.presentation?.skyId || 
+          item.skyId || 
+          item.iata || 
+          item.entityId ||
+          item.relevantFlightParams?.skyId
+        ))
+        .map(item => AirportService.transformSingleAirport(item))
+        .filter(Boolean);
 
       console.log('✅ AirportService: Transformed data:', transformedData);
-      return transformedData;
 
+      return transformedData;
     } catch (error) {
       console.error('❌ AirportService: Search error:', {
         message: error.message,
@@ -67,7 +58,6 @@ export class AirportService {
         data: error.response?.data
       });
 
-      // Don't throw here, return empty array to prevent cascading errors
       return [];
     }
   }
@@ -123,7 +113,7 @@ export class AirportService {
               Math.pow(airport.coordinates.lng - lng, 2)
             );
 
-            return distance < 5; // Roughly 5 degrees (very approximate)
+            return distance < 5;
           });
         } catch (fallbackErr) {
           console.error('❌ Fallback nearby airports failed:', fallbackErr);
@@ -192,26 +182,76 @@ export class AirportService {
     }
 
     return airportData
-      .filter(item => item && (item.iata || item.skyId || item.entityId))
+      .filter(item => item && (
+        item.presentation?.skyId || 
+        item.skyId || 
+        item.iata || 
+        item.entityId ||
+        item.relevantFlightParams?.skyId
+      ))
       .map(item => this.transformSingleAirport(item));
   }
 
   static transformSingleAirport(item) {
-    return {
-      entityId: item.entityId || item.skyId || item.iata,
-      skyId: item.skyId || item.entityId || item.iata,
-      iata: item.iata || item.skyId?.substring(0, 3),
-      name: item.name || item.displayName || item.presentation?.suggestionTitle,
-      city: item.city || item.cityName || item.presentation?.cityName,
-      country: item.country || item.countryName || item.presentation?.countryName,
-      type: item.type || 'AIRPORT',
-      coordinates: item.coordinates || {
-        lat: item.latitude || item.lat,
-        lng: item.longitude || item.lng || item.lon
-      },
-      // Additional properties that might be useful
-      fullName: item.fullName || `${item.name || ''} (${item.iata || item.skyId || ''})`,
-      searchText: `${item.name || ''} ${item.city || ''} ${item.country || ''} ${item.iata || ''}`.toLowerCase()
+    if (!item) return null;
+
+    // Handle the new data structure based on your sample
+    const presentation = item.presentation || {};
+    const flightParams = item.relevantFlightParams || {};
+    
+    // Extract airport code - prioritize skyId from different sources
+    const skyId = presentation.skyId || 
+                  flightParams.skyId || 
+                  item.skyId || 
+                  item.iata || 
+                  item.entityId || 
+                  '';
+
+    // Extract name - handle different formats
+    const name = presentation.suggestionTitle || 
+                 presentation.title || 
+                 item.localizedName || 
+                 item.name || 
+                 'Unknown Airport';
+
+    // Extract city information
+    const city = presentation.title || 
+                 item.localizedName || 
+                 item.city || 
+                 '';
+
+    // Extract country information
+    const country = presentation.subtitle || 
+                    item.country || 
+                    item.countryName || 
+                    '';
+
+    // Use entityId as primary identifier
+    const entityId = item.entityId || skyId;
+
+    // Create a clean display name
+    const displayName = name.includes('(') ? name : `${name}${skyId ? ` (${skyId})` : ''}`;
+
+    const transformedAirport = {
+      entityId,
+      skyId,
+      iata: skyId, // Use skyId as IATA code
+      name: name.replace(/\s*\([^)]*\)/g, ''),
+      city,
+      country,
+      type: item.entityType || flightParams.flightPlaceType || 'CITY',
+      coordinates: item.coordinates || null,
+      fullName: displayName,
+      searchText: `${name} ${city} ${country} ${skyId}`.toLowerCase(),
+      // Keep original data for debugging
+      _original: item
     };
+
+    console.log('🔄 Transformed airport:', {
+      input: item,
+      output: transformedAirport
+    });
+
+    return transformedAirport;
   }
 }

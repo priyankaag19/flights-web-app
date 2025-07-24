@@ -166,9 +166,11 @@ const FlightResultsDisplay = () => {
       case 'duration':
         return (a.outbound?.durationInMinutes || 0) - (b.outbound?.durationInMinutes || 0);
       case 'departure':
-        { const dateA = new Date(a.outbound?.departure || 0);
-        const dateB = new Date(b.outbound?.departure || 0);
-        return dateA - dateB; }
+        {
+          const dateA = new Date(a.outbound?.departure || 0);
+          const dateB = new Date(b.outbound?.departure || 0);
+          return dateA - dateB;
+        }
       default:
         return 0;
     }
@@ -181,7 +183,7 @@ const FlightResultsDisplay = () => {
 
   const handleBack = () => {
     clearSearch();
-    // navigate('/'); // Uncomment if using React Router
+    navigate('/');
   };
 
   const handlePriceChange = (event, newValue) => {
@@ -226,7 +228,15 @@ const FlightResultsDisplay = () => {
         </Typography>
         <Typography variant="h6" color="text.secondary">
           {searchParams?.from?.name || searchParams?.from || 'Paris'} → {searchParams?.to?.name || searchParams?.to || 'London'}
-          {searchParams?.departureDate && ` • ${new Date(searchParams.departureDate).toLocaleDateString()}`}
+          {searchParams?.departureDate && (
+            <>
+              {' • '}
+              {new Date(searchParams.departureDate).toLocaleDateString()}
+              {searchParams.tripType === 'roundtrip' && searchParams.returnDate && (
+                <> → {new Date(searchParams.returnDate).toLocaleDateString()}</>
+              )}
+            </>
+          )}
         </Typography>
       </Box>
 
