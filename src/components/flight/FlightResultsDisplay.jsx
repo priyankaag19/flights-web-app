@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { useNavigate } from 'react-router-dom'; // Add this import
+import { useNavigate } from 'react-router-dom';
 import {
   Box,
   Card,
@@ -37,13 +37,13 @@ import {
   Star,
   ExpandMore,
   ExpandLess,
-  ClearAll // Add this import for clear icon
+  ClearAll
 } from '@mui/icons-material';
 import { useFlightContext } from '../../context/FlightContext';
 
 
 const FlightResultsDisplay = () => {
-  const navigate = useNavigate(); // Add this hook
+  const navigate = useNavigate();
   const {
     flights,
     loading,

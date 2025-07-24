@@ -118,7 +118,7 @@ const TripsPage = () => {
     setEditDialog({
       open: true,
       tripIndex,
-      passengers: trip.passengers.map(p => ({ ...p })), // Create deep copy
+      passengers: trip.passengers.map(p => ({ ...p })),
       bookingReference
     });
   };
@@ -190,9 +190,7 @@ const TripsPage = () => {
       severity: 'success'
     });
 
-    // In a real app, you would also make an API call here
-    // Example: await updatePassengerDetailsAPI(editDialog.bookingReference, passengers);
-  };
+    };
 
   const closeEditDialog = () => {
     setEditDialog({ open: false, tripIndex: null, passengers: [], bookingReference: '' });
@@ -221,8 +219,6 @@ const TripsPage = () => {
       severity: 'success'
     });
 
-    // In a real app, you would also make an API call here
-    // Example: await cancelBookingAPI(cancelDialog.bookingReference);
   };
 
   const closeCancelDialog = () => {
@@ -241,7 +237,7 @@ const TripsPage = () => {
     
     return trip.status !== 'cancelled' && 
            trip.status !== 'completed' && 
-           hoursDifference > 24; // Allow cancellation only if more than 24 hours before flight
+           hoursDifference > 24;
   };
 
   if (trips.length === 0) {
