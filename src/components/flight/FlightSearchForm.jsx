@@ -127,7 +127,7 @@ const FlightSearchForm = ({ onSearch, loading: externalLoading, initialValues = 
       // Import AirportService directly for immediate results
       const { AirportService } = await import('../../services/airportService');
       const results = await AirportService.searchAirports(query);
-            
+
       // Always update the options if we're still the active search
       if (fromSearchRef.current) {
         const options = Array.isArray(results) ? results : [];
@@ -159,7 +159,7 @@ const FlightSearchForm = ({ onSearch, loading: externalLoading, initialValues = 
       // Import AirportService directly for immediate results
       const { AirportService } = await import('../../services/airportService');
       const results = await AirportService.searchAirports(query);
-      
+
       // Always update the options if we're still the active search
       if (toSearchRef.current) {
         const options = Array.isArray(results) ? results : [];
@@ -271,21 +271,21 @@ const FlightSearchForm = ({ onSearch, loading: externalLoading, initialValues = 
     // Swap the selected airports
     const tempOrigin = selectedOrigin;
     const tempDestination = selectedDestination;
-    
+
     setSelectedOrigin(tempDestination);
     setSelectedDestination(tempOrigin);
 
     // Swap input values
     const tempFromInput = fromInputValue;
     const tempToInput = toInputValue;
-    
+
     setFromInputValue(tempToInput);
     setToInputValue(tempFromInput);
-    
+
     // Swap options
     const tempFromOptions = fromOptions;
     const tempToOptions = toOptions;
-    
+
     setFromOptions(tempToOptions);
     setToOptions(tempFromOptions);
   };
@@ -346,13 +346,13 @@ const FlightSearchForm = ({ onSearch, loading: externalLoading, initialValues = 
   // Enhanced renderOption function for airport autocomplete
   const renderAirportOption = (props, option) => {
     const { key, ...otherProps } = props;
-    
+
     // Handle the airport data structure
     const airportCode = option.skyId || option.iata || option.entityId || 'N/A';
     const airportName = option.name || 'Unknown Airport';
     const location = option.city || '';
     const country = option.country || '';
-    
+
     return (
       <Box component="li" key={key} {...otherProps}>
         <Box>
@@ -370,17 +370,17 @@ const FlightSearchForm = ({ onSearch, loading: externalLoading, initialValues = 
   const getAirportLabel = (option) => {
     if (!option) return '';
     if (typeof option === 'string') return option;
-    
+
     const airportCode = option.skyId || option.iata || option.entityId || '';
     const airportName = option.name || '';
-    
+
     return airportName && airportCode ? `${airportName} (${airportCode})` : airportName || airportCode;
   };
 
   // Check if two airport options are equal
   const isOptionEqualToValue = (option, value) => {
     if (!option || !value) return false;
-    
+
     return (
       option.skyId === value.skyId ||
       option.entityId === value.entityId ||
@@ -421,7 +421,7 @@ const FlightSearchForm = ({ onSearch, loading: externalLoading, initialValues = 
                 setSelectedOrigin(newValue);
                 if (newValue) {
                   setFromInputValue(getAirportLabel(newValue));
-                  setFromOptions([]); // Clear options after selection
+                  setFromOptions([]);
                 }
               }}
               inputValue={fromInputValue}
@@ -463,10 +463,10 @@ const FlightSearchForm = ({ onSearch, loading: externalLoading, initialValues = 
               )}
               renderOption={renderAirportOption}
               noOptionsText={
-                fromInputValue.length < 2 
-                  ? "Type at least 2 characters" 
-                  : fromLoading 
-                    ? "Searching..." 
+                fromInputValue.length < 2
+                  ? "Type at least 2 characters"
+                  : fromLoading
+                    ? "Searching..."
                     : "No airports found"
               }
               filterOptions={(options) => options} // Disable built-in filtering
@@ -497,7 +497,7 @@ const FlightSearchForm = ({ onSearch, loading: externalLoading, initialValues = 
                 setSelectedDestination(newValue);
                 if (newValue) {
                   setToInputValue(getAirportLabel(newValue));
-                  setToOptions([]); // Clear options after selection
+                  setToOptions([]);
                 }
               }}
               inputValue={toInputValue}
@@ -539,13 +539,13 @@ const FlightSearchForm = ({ onSearch, loading: externalLoading, initialValues = 
               )}
               renderOption={renderAirportOption}
               noOptionsText={
-                toInputValue.length < 2 
-                  ? "Type at least 2 characters" 
-                  : toLoading 
-                    ? "Searching..." 
+                toInputValue.length < 2
+                  ? "Type at least 2 characters"
+                  : toLoading
+                    ? "Searching..."
                     : "No airports found"
               }
-              filterOptions={(options) => options} // Disable built-in filtering
+              filterOptions={(options) => options}
               freeSolo={false}
               clearOnBlur={false}
               clearOnEscape={true}
