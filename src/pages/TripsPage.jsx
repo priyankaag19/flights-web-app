@@ -137,12 +137,12 @@ const TripsPage = () => {
 
   const savePassengerChanges = () => {
     const { tripIndex, passengers } = editDialog;
-    
+
     // Validate that all required fields are filled
-    const isValid = passengers.every(passenger => 
-      passenger.firstName?.trim() && 
-      passenger.lastName?.trim() && 
-      passenger.email?.trim() && 
+    const isValid = passengers.every(passenger =>
+      passenger.firstName?.trim() &&
+      passenger.lastName?.trim() &&
+      passenger.email?.trim() &&
       passenger.phone?.trim()
     );
 
@@ -157,7 +157,7 @@ const TripsPage = () => {
 
     // Validate email format
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    const hasValidEmails = passengers.every(passenger => 
+    const hasValidEmails = passengers.every(passenger =>
       emailRegex.test(passenger.email)
     );
 
@@ -177,11 +177,11 @@ const TripsPage = () => {
       passengers: passengers,
       lastModified: new Date().toISOString()
     };
-    
+
     // Update state and localStorage
     setTrips(updatedTrips);
     localStorage.setItem('confirmedBookings', JSON.stringify(updatedTrips));
-    
+
     // Close dialog and show success message
     setEditDialog({ open: false, tripIndex: null, passengers: [], bookingReference: '' });
     setSnackbar({
@@ -190,7 +190,7 @@ const TripsPage = () => {
       severity: 'success'
     });
 
-    };
+  };
 
   const closeEditDialog = () => {
     setEditDialog({ open: false, tripIndex: null, passengers: [], bookingReference: '' });
@@ -198,7 +198,7 @@ const TripsPage = () => {
 
   const confirmCancellation = () => {
     const { tripIndex } = cancelDialog;
-    
+
     // Update the trip status to cancelled
     const updatedTrips = [...trips];
     updatedTrips[tripIndex] = {
@@ -206,11 +206,11 @@ const TripsPage = () => {
       status: 'cancelled',
       cancelledDate: new Date().toISOString()
     };
-    
+
     // Update state and localStorage
     setTrips(updatedTrips);
     localStorage.setItem('confirmedBookings', JSON.stringify(updatedTrips));
-    
+
     // Close dialog and show success message
     setCancelDialog({ open: false, tripIndex: null, bookingReference: '' });
     setSnackbar({
@@ -234,10 +234,10 @@ const TripsPage = () => {
     const flightDate = new Date(trip.flight.departure);
     const now = new Date();
     const hoursDifference = (flightDate - now) / (1000 * 60 * 60);
-    
-    return trip.status !== 'cancelled' && 
-           trip.status !== 'completed' && 
-           hoursDifference > 24;
+
+    return trip.status !== 'cancelled' &&
+      trip.status !== 'completed' &&
+      hoursDifference > 24;
   };
 
   if (trips.length === 0) {
@@ -269,7 +269,7 @@ const TripsPage = () => {
       <Grid container spacing={3}>
         {trips.map((trip, index) => (
           <Grid item xs={12} key={index}>
-            <Card sx={{ 
+            <Card sx={{
               overflow: 'visible',
               opacity: trip.status === 'cancelled' ? 0.7 : 1,
               position: 'relative'
@@ -294,7 +294,7 @@ const TripsPage = () => {
                   CANCELLED
                 </Box>
               )}
-              
+
               <CardContent sx={{ p: 3 }}>
                 {/* Header with booking reference and status */}
                 <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
@@ -427,8 +427,8 @@ const TripsPage = () => {
                   <Button variant="outlined" size="small">
                     View E-Ticket
                   </Button>
-                  <Button 
-                    variant="outlined" 
+                  <Button
+                    variant="outlined"
                     size="small"
                     startIcon={<Edit />}
                     disabled={trip.status === 'cancelled'}
@@ -436,9 +436,9 @@ const TripsPage = () => {
                   >
                     Manage Booking
                   </Button>
-                  <Button 
-                    variant="outlined" 
-                    size="small" 
+                  <Button
+                    variant="outlined"
+                    size="small"
                     color="error"
                     startIcon={<Cancel />}
                     disabled={!canCancelBooking(trip)}
@@ -476,7 +476,7 @@ const TripsPage = () => {
           <DialogContentText>
             Are you sure you want to cancel booking <strong>{cancelDialog.bookingReference}</strong>?
             <br /><br />
-            This action cannot be undone. Once cancelled, you may be eligible for a refund 
+            This action cannot be undone. Once cancelled, you may be eligible for a refund
             according to the airline's cancellation policy.
           </DialogContentText>
         </DialogContent>
@@ -484,9 +484,9 @@ const TripsPage = () => {
           <Button onClick={closeCancelDialog} variant="outlined">
             Keep Booking
           </Button>
-          <Button 
-            onClick={confirmCancellation} 
-            color="error" 
+          <Button
+            onClick={confirmCancellation}
+            color="error"
             variant="contained"
             startIcon={<Cancel />}
           >
@@ -519,7 +519,7 @@ const TripsPage = () => {
           <Typography variant="body2" color="text.secondary" sx={{ mb: 3 }}>
             Update passenger information for your booking. All fields are required.
           </Typography>
-          
+
           <Grid container spacing={3}>
             {editDialog.passengers.map((passenger, index) => (
               <Grid item xs={12} key={index}>
@@ -528,7 +528,7 @@ const TripsPage = () => {
                     <Person color="primary" />
                     Passenger {index + 1}
                   </Typography>
-                  
+
                   <Grid container spacing={2}>
                     <Grid item xs={12} sm={6}>
                       <TextField
@@ -583,7 +583,7 @@ const TripsPage = () => {
 
           <Box sx={{ mt: 3, p: 2, bgcolor: 'info.main', color: 'info.contrastText', borderRadius: 1 }}>
             <Typography variant="body2">
-              <strong>Important:</strong> Changes to passenger details may be subject to airline policies. 
+              <strong>Important:</strong> Changes to passenger details may be subject to airline policies.
               Please ensure all information matches official identification documents.
             </Typography>
           </Box>
@@ -592,9 +592,9 @@ const TripsPage = () => {
           <Button onClick={closeEditDialog} variant="outlined">
             Cancel Changes
           </Button>
-          <Button 
+          <Button
             onClick={savePassengerChanges}
-            color="primary" 
+            color="primary"
             variant="contained"
             startIcon={<Save />}
           >
